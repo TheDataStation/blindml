@@ -1,16 +1,41 @@
+- [Structure](#structure)
+- [Requirements](#requirements)
+
 # Structure
 
 ```
 blindml
 ├── backend
-│   ├── model_search
-│   ├── preprocessing
 │   ├── search
+│   │   ├── data_search.py
+│   │   ├── model_search
+│   │   │   ├── arch_search.py
+│   │   │   ├── hp_search.py
+│   │   │   └── model_select.py
+│   │   └── preprocessing
+│   │       ├── selection.py
+│   │       └── transform.py
 │   └── training
-└── frontend
-    ├── configuration
-    ├── reporting
-    └── results
+│       ├── distributed.py
+│       ├── hpo.py
+│       ├── metrics.py
+│       └── optim.py
+├── frontend
+│   ├── config
+│   │   ├── data
+│   │   │   ├── labels.py
+│   │   │   └── samples.py
+│   │   └── task
+│   │       ├── budget.py
+│   │       ├── expectations.py
+│   │       └── objective.py
+│   ├── reporting
+│   │   ├── curves.py
+│   │   └── statistics.py
+│   └── results
+│       ├── api.py
+│       └── labels.py
+└── runner.py
 
 ```
 
