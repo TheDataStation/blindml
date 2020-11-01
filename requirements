@@ -1,0 +1,7 @@
+pip-tools
+scikit-learn
+torch
+torchvision
+keras
+tensorflow
+nni
