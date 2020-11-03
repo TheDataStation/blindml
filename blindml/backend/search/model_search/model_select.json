@@ -1,0 +1,22 @@
+{
+  "classification": [
+    "DecisionTreeClassifier",
+    "GaussianProcessClassifier",
+    "NearestNeighborsClassifier",
+    "RidgeClassifier",
+    "SVC"
+  ],
+  "regression": [
+    "ARDRegression",
+    "DecisionTreeRegressor",
+    "ElasticNet",
+    "GaussianProcessRegressor",
+    "KernelRidgeRegression",
+    "Lars",
+    "Lasso",
+    "LinearRegression",
+    "LogisticRegression",
+    "NearestNeighborsRegressor",
+    "SVR"
+  ]
+}

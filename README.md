@@ -19,7 +19,7 @@ blindml
 │       ├── distributed.py
 │       ├── hpo.py
 │       ├── metrics.py
-│       └── optim.py
+│       └── train.py
 ├── frontend
 │   ├── config
 │   │   ├── data
@@ -44,4 +44,4 @@ blindml
 
 # Requirements
 
-Don't update `requirements.txt`; instead update `requirements` and run `pip-compile requirements`.
+Don't update `requirements.txt`; instead update `requirements.in` and run `pip-compile`.

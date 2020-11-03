@@ -1,0 +1,363 @@
+{
+  "ARDRegression": {
+    "alpha_1": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-6,
+        1.0,
+        10
+      ]
+    },
+    "alpha_2": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-6,
+        1.0,
+        10
+      ]
+    },
+    "lambda_1": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-6,
+        1.0,
+        10
+      ]
+    },
+    "lambda_2": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-6,
+        1.0,
+        10
+      ]
+    }
+  },
+  "DecisionTreeClassifier": {
+    "criterion": {
+      "_type": "choice",
+      "_value": [
+        "gini",
+        "entropy"
+      ]
+    },
+    "max_depth": {
+      "_type": "choice",
+      "_value": [
+        2,
+        4,
+        8,
+        16,
+        null
+      ]
+    },
+    "max_features": {
+      "_type": "choice",
+      "_value": [
+        "auto",
+        "sqrt",
+        "log2",
+        null
+      ]
+    }
+  },
+  "DecisionTreeRegressor": {
+    "criterion": {
+      "_type": "choice",
+      "_value": [
+        "mse",
+        "friedman_mse",
+        "mae"
+      ]
+    },
+    "max_depth": {
+      "_type": "choice",
+      "_value": [
+        2,
+        4,
+        8,
+        16,
+        null
+      ]
+    },
+    "max_features": {
+      "_type": "choice",
+      "_value": [
+        "auto",
+        "sqrt",
+        "log2",
+        null
+      ]
+    }
+  },
+  "ElasticNet": {
+    "alpha": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-6,
+        1.0,
+        10
+      ]
+    },
+    "l1_ratio": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-6,
+        1.0,
+        10
+      ]
+    }
+  },
+  "GaussianProcessClassifier": {
+    "kernel": {
+      "_type": "choice",
+      "_value": [
+        "white",
+        "rbf",
+        "matern",
+        "rational_quad",
+        "exp_sine_squared",
+        "dot"
+      ]
+    }
+  },
+  "GaussianProcessRegressor": {
+    "alpha": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-10,
+        1.0,
+        10
+      ]
+    },
+    "kernel": {
+      "_type": "choice",
+      "_value": [
+        "white",
+        "rbf",
+        "matern",
+        "rational_quad",
+        "exp_sine_squared",
+        "dot"
+      ]
+    }
+  },
+  "KernelRidgeRegression": {
+    "alpha": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-6,
+        1.0,
+        10
+      ]
+    },
+    "kernel": {
+      "_type": "choice",
+      "_value": [
+        "additive_chi2",
+        "chi2",
+        "linear",
+        "polynomial",
+        "poly",
+        "rbf",
+        "laplacian",
+        "sigmoid",
+        "cosine"
+      ]
+    }
+  },
+  "Lars": {
+    "jitter": {
+      "_type": "uniform",
+      "_value": [
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "Lasso": {
+    "alpha": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-6,
+        1.0,
+        10
+      ]
+    }
+  },
+  "LinearRegression": {},
+  "LogisticRegression": {
+    "dual": {
+      "_type": "choice",
+      "_value": [
+        true,
+        false
+      ]
+    },
+    "penalty": {
+      "_type": "choice",
+      "_value": [
+        "l1",
+        "l2"
+      ]
+    },
+    "C": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-6,
+        1.0,
+        10
+      ]
+    }
+  },
+  "NearestNeighborsClassifier": {
+    "n_neighbors": {
+      "_type": "quniform",
+      "_value": [
+        5,
+        100,
+        10
+      ]
+    },
+    "weights": {
+      "_type": "choice",
+      "_value": [
+        "uniform",
+        "distance"
+      ]
+    },
+    "p": {
+      "_type": "choice",
+      "_value": [
+        1,
+        2
+      ]
+    },
+    "metric": {
+      "_type": "choice",
+      "_value": [
+        "euclidean",
+        "manhattan",
+        "chebyshev",
+        "minkowski",
+        "wminkowski",
+        "seuclidean",
+        "mahalanobis"
+      ]
+    }
+  },
+  "NearestNeighborsRegressor": {
+    "n_neighbors": {
+      "_type": "quniform",
+      "_value": [
+        5,
+        100,
+        10
+      ]
+    },
+    "weights": {
+      "_type": "choice",
+      "_value": [
+        "uniform",
+        "distance"
+      ]
+    },
+    "p": {
+      "_type": "choice",
+      "_value": [
+        1,
+        2
+      ]
+    },
+    "metric": {
+      "_type": "choice",
+      "_value": [
+        "euclidean",
+        "manhattan",
+        "chebyshev",
+        "minkowski",
+        "wminkowski",
+        "seuclidean",
+        "mahalanobis"
+      ]
+    }
+  },
+  "RidgeClassifier": {
+    "alpha": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-6,
+        1.0,
+        10
+      ]
+    }
+  },
+  "SVC": {
+    "kernel": {
+      "_type": "choice",
+      "_value": [
+        "linear",
+        "poly",
+        "rbf",
+        "sigmoid",
+        "precomputed"
+      ]
+    },
+    "gamma": {
+      "_type": "choice",
+      "_value": [
+        "scale",
+        "auto"
+      ]
+    },
+    "C": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-6,
+        1.0,
+        10
+      ]
+    },
+    "shrinking": {
+      "_type": "choice",
+      "_value": [
+        true,
+        false
+      ]
+    }
+  },
+  "SVR": {
+    "kernel": {
+      "_type": "choice",
+      "_value": [
+        "linear",
+        "poly",
+        "rbf",
+        "sigmoid",
+        "precomputed"
+      ]
+    },
+    "gamma": {
+      "_type": "choice",
+      "_value": [
+        "scale",
+        "auto"
+      ]
+    },
+    "C": {
+      "_type": "qloguniform",
+      "_value": [
+        1e-6,
+        1.0,
+        10
+      ]
+    },
+    "shrinking": {
+      "_type": "choice",
+      "_value": [
+        true,
+        false
+      ]
+    }
+  }
+}
