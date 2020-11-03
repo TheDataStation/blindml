@@ -52,3 +52,7 @@ Execute `./run.sh` to find start `nni` and find parameters for an `sklearn` mode
 # Requirements
 
 Don't update `requirements.txt`; instead update `requirements.in` and run `pip-compile`.
+
+# TODO
+
+Right now only backend is (sort of) implemented. Frontend is still in the offing.
