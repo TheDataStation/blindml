@@ -1,5 +1,7 @@
 - [Structure](#structure)
+- [Entry point](#entry-point)
 - [Requirements](#requirements)
+- [TODO](#todo)
 
 # Structure
 
