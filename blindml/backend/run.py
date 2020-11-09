@@ -9,6 +9,7 @@ from blindml.backend.search.model_search.hp_search import get_model_hps
 from blindml.backend.search.model_search.model_select import get_model_cons
 from blindml.backend.search.preprocessing.selection import select_features
 from blindml.backend.search.preprocessing.transform import scale, get_splits
+from blindml.backend.training.metrics import get_mse
 from blindml.backend.training.train import train, eval_model
 
 log = logging.getLogger(__file__)
@@ -46,7 +47,8 @@ def main():
     X_selected_train, feat_idxs = select_features(X_train, y_train)
 
     model = train(X_selected_train, y_train, model)
-    _, score = eval_model(X_test[:, feat_idxs], y_test, model)
+    y_pred = eval_model(X_test[:, feat_idxs], model)
+    score = get_mse(y_test, y_pred)
     nni.report_final_result(score)
 
 

@@ -22,6 +22,10 @@ def main():
     # task.run()
     # pprint(task.get_experiment_update())
     task.save_best_model("/Users/maksim/dev_projects/blindml/tests")
+    model, scores = task.load_best_model("/Users/maksim/dev_projects/blindml/tests")
+    pprint(scores)
+
+
 
 if __name__ == "__main__":
     main()

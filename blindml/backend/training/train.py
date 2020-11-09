@@ -11,6 +11,7 @@ class Metric(Enum):
     MSE = auto()
     MAE = auto()
     ACCURACY = auto()
+    R2 = auto()
 
 
 def train(X, y, model):
@@ -21,12 +22,10 @@ def train(X, y, model):
     return model
 
 
-def eval_model(X, y_true, model, metric=Metric.MSE):
+def eval_model(X, model):
     if "sklearn" in inspect.getfile(model.__class__):
         y_pred = model.predict(X)
+        return y_pred
     else:
         raise Exception("unsupported model")
-    if metric == Metric.MSE:
-        return y_true, get_mse(y_true, y_pred)
-    else:
-        raise Exception("unsupported metric")
+

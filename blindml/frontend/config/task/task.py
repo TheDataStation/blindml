@@ -15,7 +15,8 @@ from blindml.backend.run import get_model
 from blindml.backend.search.data_search import load_logans_data
 from blindml.backend.search.preprocessing.selection import select_features
 from blindml.backend.search.preprocessing.transform import scale, get_splits
-from blindml.backend.training.train import train
+from blindml.backend.training.metrics import get_mse, get_r2
+from blindml.backend.training.train import train, eval_model, Metric
 
 
 class Task:
@@ -58,18 +59,31 @@ class Task:
         X_selected_train, feat_idxs = select_features(X_train, y_train)
 
         model = train(X_selected_train, y_train, model)
-        return model
+        # TODO: stub
+        y_pred = eval_model(X_test[:, feat_idxs], model)
+        return (
+            model,
+            {
+                str(Metric.MSE): get_mse(y_test, y_pred),
+                str(Metric.R2): get_r2(y_test, y_pred),
+            },
+        )
 
     def save_best_model(self, f_dir):
-        model = self.train_best_model()
+        model, scores = self.train_best_model()
         dump(model, f"{f_dir}/{self._experiment_name}.joblib")
+        with open(f"{f_dir}/{self._experiment_name}_top_score.json", "w") as f:
+            json.dump(scores, f)
 
     def load_best_model(self, f_dir):
+        self.save_best_model(f_dir)
         model = load(f"{f_dir}/{self._experiment_name}.joblib")
-        return model
+        with open(f"{f_dir}/{self._experiment_name}_top_score.json", "r") as f:
+            scores = json.load(f)
+        return model, scores
 
     def evaluate_best_model(self, f_dir, X):
-        model = self.load_best_model(f_dir)
+        model, score = self.load_best_model(f_dir)
         return model.predict(X)
 
     # goal is to be readable
