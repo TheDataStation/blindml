@@ -9,3 +9,7 @@ black
 pandas
 dill
 pytest
+jsonnet
+Gooey
+glom
+matplotlib

@@ -1,10 +1,19 @@
 import pandas as pd
 
+from blindml.backend.training.data import split_data
+
+
+def load_csv_data(csv_fp, extra_cols):
+    df = pd.read_csv(csv_fp)
+    df.drop(columns=extra_cols, inplace=True)
+    df.dropna(axis="index", inplace=True)
+    return df
+
 
 def load_logans_data():
-    df = pd.read_csv("/Users/maksim/dev_projects/blindml/data/xtb-redox.csv")
-    df.drop(
-        columns=[
+    df = load_csv_data(
+        "/Users/maksim/dev_projects/blindml/data/xtb-redox.csv",
+        [
             "inchi_key",
             "wall_time_neutral",
             "EA_wall_time",
@@ -12,12 +21,9 @@ def load_logans_data():
             "xyz_neutral",
             "xyz_reduced",
             "xyz_oxidized",
+            "smiles",
+            "inchi",
         ],
-        inplace=True,
     )
-    df.drop(columns=["smiles", "inchi"], inplace=True)
-    # df.set_index("inchi", inplace=True)
-    df.dropna(axis="index", inplace=True)
-    y_col = "EA"
-    X, y = df[list(set(df.columns.values) - {y_col})].values, df[y_col].values
+    X, y = split_data("EA", df)
     return X, y
