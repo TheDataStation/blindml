@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import tempfile
+import time
 from functools import cmp_to_key
 from subprocess import check_call, CalledProcessError
 
@@ -24,7 +25,11 @@ from nni_cmd.launcher import (
     set_platform_config,
     set_experiment,
 )
-from nni_cmd.nnictl_utils import get_config_filename, convert_time_stamp_to_date
+from nni_cmd.nnictl_utils import (
+    get_config_filename,
+    convert_time_stamp_to_date,
+    stop_experiment,
+)
 from nni_cmd.rest_utils import (
     check_rest_server,
     check_rest_server_quick,
@@ -32,6 +37,14 @@ from nni_cmd.rest_utils import (
     check_response,
 )
 from nni_cmd.url_utils import get_local_urls, trial_jobs_url, experiment_url
+
+
+# from nni_cmd.nnictl import parse_args
+
+
+class NniArgs(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 
 def launch_experiment(
@@ -195,9 +208,9 @@ def create_experiment(args, experiment_config):
         )
     except Exception as exception:
         nni_config = Config(experiment_name)
-        restServerPid = nni_config.get_config("restServerPid")
-        if restServerPid:
-            kill_command(restServerPid)
+        rest_server_pid = nni_config.get_config("restServerPid")
+        if rest_server_pid:
+            kill_command(rest_server_pid)
         print_error(exception)
         exit(1)
 
@@ -278,6 +291,57 @@ def list_experiment(args):
     return None
 
 
-class NniArgs(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+DEFAULT_SEARCH_SPACE_PATH = os.path.split(__file__)[0] + "/" + "search_space.json"
+
+
+def make_nni_experiment_config(
+    experiment_name,
+    search_space_path=DEFAULT_SEARCH_SPACE_PATH,
+    hours=1,
+    max_trials=1000,
+):
+    return {
+        "authorName": "default",
+        "experimentName": experiment_name,
+        "maxExecDuration": f"{hours * 60 * 60}",  # s
+        "maxTrialNum": max_trials,
+        "searchSpacePath": search_space_path,
+        "trainingServicePlatform": "local",
+        "trial": {
+            "codeDir": "/Users/maksim/dev_projects/blindml/",
+            "command": "python3 -m blindml.backend.run",
+            "gpuNum": 0,
+        },
+        "trialConcurrency": 1,
+        "tuner": {
+            "builtinTunerName": "TPE",
+            "classArgs": {"optimize_mode": "minimize"},
+        },
+        "useAnnotation": False,
+    }
+
+
+def run_nni(experiment_config):
+    experiment_name = experiment_config["experimentName"]
+    stop_experiment(NniArgs(id=experiment_name, all=True))
+    time.sleep(5)
+    create_experiment(
+        NniArgs(foreground=False, debug=False, port=8080), experiment_config
+    )
+    # parse_args()
+
+
+def get_experiment_update(experiment_config):
+    experiment_name = experiment_config["experimentName"]
+    list_experiment(NniArgs(id=experiment_name))
+    trials = trial_ls(NniArgs(id=experiment_name, head=False, tail=False))
+    good_trials = [t for t in trials if "finalMetricData" in t]
+    sorted_good_trias = sorted(
+        good_trials,
+        key=lambda t: float(t["finalMetricData"][0]["data"].replace('"', ""))
+        if experiment_config["tuner"]["classArgs"]["optimize_mode"] == "minimize"
+        else -float(t["finalMetricData"][0]["data"].replace('"', "")),
+    )
+    top_trial = sorted_good_trias[0]
+    top_trial['hyperParameters'] = json.loads(top_trial['hyperParameters'][0])['parameters']
+    return top_trial

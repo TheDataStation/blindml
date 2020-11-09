@@ -37,7 +37,7 @@ hyperopt==0.1.2           # via nni
 idna==2.10                # via requests
 importlib-metadata==2.0.0  # via markdown, pluggy, pytest
 iniconfig==1.1.1          # via pytest
-joblib==0.17.0            # via scikit-learn
+joblib==0.17.0            # via -r requirements.in, scikit-learn
 json-tricks==3.15.3       # via nni
 jsonnet==0.16.0           # via -r requirements.in
 keras-preprocessing==1.1.2  # via tensorflow

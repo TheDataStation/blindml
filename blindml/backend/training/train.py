@@ -27,6 +27,6 @@ def eval_model(X, y_true, model, metric=Metric.MSE):
     else:
         raise Exception("unsupported model")
     if metric == Metric.MSE:
-        return get_mse(y_true, y_pred)
+        return y_true, get_mse(y_true, y_pred)
     else:
         raise Exception("unsupported metric")

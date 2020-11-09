@@ -46,7 +46,7 @@ def main():
     X_selected_train, feat_idxs = select_features(X_train, y_train)
 
     model = train(X_selected_train, y_train, model)
-    score = eval_model(X_test[:, feat_idxs], y_test, model)
+    _, score = eval_model(X_test[:, feat_idxs], y_test, model)
     nni.report_final_result(score)
 
 
