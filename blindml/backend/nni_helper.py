@@ -1,27 +1,27 @@
 import json
 import os
+import random
+import signal
+import string
 import sys
-import tempfile
 import time
 from functools import cmp_to_key
-from subprocess import check_call, CalledProcessError
+from subprocess import check_call, CalledProcessError, Popen, PIPE, STDOUT, call
 
-from nni.package_utils import get_builtin_module_class_name
-from nni_annotation import expand_annotations, generate_search_space
+import psutil
+from nni.package_utils import get_builtin_module_class_name, get_nni_installation_path
 from nni_cmd.command_utils import kill_command
-from nni_cmd.common_utils import (
-    print_error,
-    get_user,
-    get_json_content,
-    print_normal,
-    detect_process,
-)
+from nni_cmd.common_utils import print_error, print_normal, detect_process, detect_port
 from nni_cmd.config_utils import Config, Experiments
-from nni_cmd.constants import INSTALLABLE_PACKAGE_META, ERROR_INFO, REST_TIME_OUT
+from nni_cmd.constants import (
+    INSTALLABLE_PACKAGE_META,
+    ERROR_INFO,
+    REST_TIME_OUT,
+    LOG_HEADER,
+)
 from nni_cmd.launcher import (
     get_log_path,
     print_log_content,
-    start_rest_server,
     set_platform_config,
     set_experiment,
 )
@@ -29,6 +29,8 @@ from nni_cmd.nnictl_utils import (
     get_config_filename,
     convert_time_stamp_to_date,
     stop_experiment,
+    update_experiment,
+    parse_ids,
 )
 from nni_cmd.rest_utils import (
     check_rest_server,
@@ -108,25 +110,6 @@ def launch_experiment(
         log_level,
     )
     nni_config.set_config("restServerPid", rest_process.pid)
-    # Deal with annotation
-    if experiment_config.get("useAnnotation"):
-        path = os.path.join(tempfile.gettempdir(), get_user(), "nni", "annotation")
-        if not os.path.isdir(path):
-            os.makedirs(path)
-        path = tempfile.mkdtemp(dir=path)
-        nas_mode = experiment_config["trial"].get("nasMode", "classic_mode")
-        code_dir = expand_annotations(
-            experiment_config["trial"]["codeDir"], path, nas_mode=nas_mode
-        )
-        experiment_config["trial"]["codeDir"] = code_dir
-        search_space = generate_search_space(code_dir)
-        experiment_config["searchSpace"] = json.dumps(search_space)
-        assert search_space, ERROR_INFO % "Generated search space is empty"
-    elif experiment_config.get("searchSpacePath"):
-        search_space = get_json_content(experiment_config.get("searchSpacePath"))
-        experiment_config["searchSpace"] = json.dumps(search_space)
-    else:
-        experiment_config["searchSpace"] = json.dumps("")
 
     # check rest server
     running, _ = check_rest_server(args.port)
@@ -203,16 +186,16 @@ def create_experiment(args, experiment_config):
     nni_config.set_config("experimentConfig", experiment_config)
     nni_config.set_config("restServerPort", args.port)
     try:
+        # TODO: this method mutates nni_config
         launch_experiment(
             args, experiment_config, "new", experiment_name, experiment_name
         )
-    except Exception as exception:
+    except Exception as e:
         nni_config = Config(experiment_name)
         rest_server_pid = nni_config.get_config("restServerPid")
         if rest_server_pid:
             kill_command(rest_server_pid)
-        print_error(exception)
-        exit(1)
+        raise e
 
 
 def trial_ls(args):
@@ -294,18 +277,12 @@ def list_experiment(args):
 DEFAULT_SEARCH_SPACE_PATH = os.path.split(__file__)[0] + "/" + "search_space.json"
 
 
-def make_nni_experiment_config(
-    experiment_name,
-    search_space_path=DEFAULT_SEARCH_SPACE_PATH,
-    hours=1,
-    max_trials=1000,
-):
+def make_nni_experiment_config(experiment_name, search_space, hours=1, max_trials=1000):
     return {
         "authorName": "default",
         "experimentName": experiment_name,
         "maxExecDuration": f"{hours * 60 * 60}",  # s
         "maxTrialNum": max_trials,
-        "searchSpacePath": search_space_path,
         "trainingServicePlatform": "local",
         "trial": {
             "codeDir": "/Users/maksim/dev_projects/blindml/",
@@ -318,6 +295,8 @@ def make_nni_experiment_config(
             "classArgs": {"optimize_mode": "minimize"},
         },
         "useAnnotation": False,
+        # nni expects search space to be a string (stupid)
+        "searchSpace": json.dumps(search_space),
     }
 
 
@@ -328,20 +307,231 @@ def run_nni(experiment_config):
     create_experiment(
         NniArgs(foreground=False, debug=False, port=8080), experiment_config
     )
-    # parse_args()
+
+
+def resume(experiment_config):
+    experiment_name = experiment_config["experimentName"]
+    resume_experiment(
+        NniArgs(
+            id=experiment_name,
+            head=False,
+            tail=False,
+            foreground=False,
+            debug=False,
+            port=8080,
+        )
+    )
 
 
 def get_experiment_update(experiment_config):
     experiment_name = experiment_config["experimentName"]
     list_experiment(NniArgs(id=experiment_name))
     trials = trial_ls(NniArgs(id=experiment_name, head=False, tail=False))
-    good_trials = [t for t in trials if "finalMetricData" in t]
+    good_trials = [t for t in trials if t["status"] == "SUCCEEDED"]
+    for t in good_trials:
+        t["finalMetricData"] = json.loads(json.loads(t["finalMetricData"][0]["data"]))
     sorted_good_trias = sorted(
         good_trials,
-        key=lambda t: float(t["finalMetricData"][0]["data"].replace('"', ""))
+        key=lambda t: t["finalMetricData"]["default"]
         if experiment_config["tuner"]["classArgs"]["optimize_mode"] == "minimize"
-        else -float(t["finalMetricData"][0]["data"].replace('"', "")),
+        else -t["finalMetricData"]["default"],
     )
-    top_trial = sorted_good_trias[0]
-    top_trial['hyperParameters'] = json.loads(top_trial['hyperParameters'][0])['parameters']
-    return top_trial
+    for trial in sorted_good_trias:
+        trial["hyperParameters"] = json.loads(trial["hyperParameters"][0])["parameters"]
+    return sorted_good_trias
+
+
+def manage_stopped_experiment(args, mode):
+    """view a stopped experiment"""
+    update_experiment()
+    experiment_config = Experiments()
+    experiment_dict = experiment_config.get_all_experiments()
+    experiment_id = None
+    # find the latest stopped experiment
+    if not args.id:
+        print_error(
+            "Please set experiment id! \nYou could use 'nnictl {0} id' to {0} a stopped experiment!\n"
+            "You could use 'nnictl experiment list --all' to show all experiments!".format(
+                mode
+            )
+        )
+        exit(1)
+    else:
+        if experiment_dict.get(args.id) is None:
+            print_error("Id %s not exist!" % args.id)
+            exit(1)
+        if experiment_dict[args.id]["status"] != "STOPPED":
+            print_error("Only stopped experiments can be {0}ed!".format(mode))
+            exit(1)
+        experiment_id = args.id
+    print_normal("{0} experiment {1}...".format(mode, experiment_id))
+    nni_config = Config(experiment_dict[experiment_id]["fileName"])
+    experiment_config = nni_config.get_config("experimentConfig")
+    experiment_id = nni_config.get_config("experimentId")
+    experiment_name = experiment_config["experimentName"]
+    new_config_file_name = "".join(
+        random.sample(string.ascii_letters + string.digits, 8)
+    )
+    new_nni_config = Config(new_config_file_name)
+    new_nni_config.set_config("experimentConfig", experiment_config)
+    new_nni_config.set_config("restServerPort", args.port)
+    try:
+        launch_experiment(
+            args, experiment_config, mode, experiment_name, experiment_name
+        )
+    except Exception as exception:
+        nni_config = Config(new_config_file_name)
+        restServerPid = nni_config.get_config("restServerPid")
+        if restServerPid:
+            kill_command(restServerPid)
+        print_error(exception)
+        exit(1)
+
+
+def view_experiment(args):
+    """view a stopped experiment"""
+    manage_stopped_experiment(args, "view")
+
+
+def resume_experiment(args):
+    """resume an experiment"""
+    manage_stopped_experiment(args, "resume")
+
+
+def get_experiment_id(experiment_name):
+    return list_experiment(
+        NniArgs(id=experiment_name, foreground=False, debug=False, port=8080)
+    )["id"]
+
+
+def start_rest_server(
+    port,
+    platform,
+    mode,
+    config_file_name,
+    foreground=False,
+    experiment_id=None,
+    log_dir=None,
+    log_level=None,
+):
+    """Run nni manager process"""
+    if detect_port(port):
+        print_error(
+            "Port %s is used by another process, please reset the port!\n"
+            "You could use 'nnictl create --help' to get help information" % port
+        )
+        exit(1)
+
+    if (platform != "local") and detect_port(int(port) + 1):
+        print_error(
+            "PAI mode need an additional adjacent port %d, and the port %d is used by another process!\n"
+            "You could set another port to start experiment!\n"
+            "You could use 'nnictl create --help' to get help information"
+            % ((int(port) + 1), (int(port) + 1))
+        )
+        exit(1)
+
+    print_normal("Starting restful server...")
+
+    entry_dir = get_nni_installation_path()
+    if (not entry_dir) or (not os.path.exists(entry_dir)):
+        print_error("Fail to find nni under python library")
+        exit(1)
+    entry_file = os.path.join(entry_dir, "main.js")
+
+    node_command = "node"
+    if sys.platform == "win32":
+        node_command = os.path.join(entry_dir[:-3], "Scripts", "node.exe")
+    cmds = [
+        node_command,
+        "--max-old-space-size=4096",
+        entry_file,
+        "--port",
+        str(port),
+        "--mode",
+        platform,
+    ]
+    if mode == "view":
+        cmds += ["--start_mode", "resume"]
+        cmds += ["--readonly", "true"]
+    else:
+        cmds += ["--start_mode", mode]
+    if log_dir is not None:
+        cmds += ["--log_dir", log_dir]
+    if log_level is not None:
+        cmds += ["--log_level", log_level]
+    cmds += ["--experiment_id", experiment_id]
+    if foreground:
+        cmds += ["--foreground", "true"]
+    stdout_full_path, stderr_full_path = get_log_path(config_file_name)
+    with open(stdout_full_path, "a+") as stdout_file, open(
+        stderr_full_path, "a+"
+    ) as stderr_file:
+        time_now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
+        # add time information in the header of log files
+        log_header = LOG_HEADER % str(time_now)
+        stdout_file.write(log_header)
+        stderr_file.write(log_header)
+        if sys.platform == "win32":
+            from subprocess import CREATE_NEW_PROCESS_GROUP
+
+            if foreground:
+                process = Popen(
+                    cmds,
+                    cwd=entry_dir,
+                    stdout=PIPE,
+                    stderr=STDOUT,
+                    creationflags=CREATE_NEW_PROCESS_GROUP,
+                )
+            else:
+                process = Popen(
+                    cmds,
+                    cwd=entry_dir,
+                    stdout=stdout_file,
+                    stderr=stderr_file,
+                    creationflags=CREATE_NEW_PROCESS_GROUP,
+                )
+        else:
+            if foreground:
+                process = Popen(cmds, cwd=entry_dir, stdout=PIPE, stderr=PIPE)
+            else:
+                process = Popen(
+                    cmds, cwd=entry_dir, stdout=stdout_file, stderr=stderr_file
+                )
+    return process, str(time_now)
+
+
+def stop_experiment(args):
+    """Stop the experiment which is running"""
+    experiment_id_list = parse_ids(args)
+    if experiment_id_list:
+        experiment_config = Experiments()
+        experiment_dict = experiment_config.get_all_experiments()
+        for experiment_id in experiment_id_list:
+            print_normal("Stopping experiment %s" % experiment_id)
+            nni_config = Config(experiment_dict[experiment_id]["fileName"])
+            rest_pid = nni_config.get_config("restServerPid")
+            if rest_pid:
+                kill_command(rest_pid)
+                tensorboard_pid_list = nni_config.get_config("tensorboardPidList")
+                if tensorboard_pid_list:
+                    for tensorboard_pid in tensorboard_pid_list:
+                        try:
+                            kill_command(tensorboard_pid)
+                        except Exception as exception:
+                            print_error(exception)
+                    nni_config.set_config("tensorboardPidList", [])
+            print_normal("Stop experiment success.")
+            experiment_config.update_experiment(experiment_id, "status", "STOPPED")
+            time_now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
+            experiment_config.update_experiment(experiment_id, "endTime", str(time_now))
+
+
+def kill_command(pid):
+    """kill command"""
+    if sys.platform == "win32":
+        process = psutil.Process(pid=pid)
+        process.send_signal(signal.CTRL_BREAK_EVENT)
+    else:
+        cmds = ["kill", "-9", str(pid)]
+        call(cmds)

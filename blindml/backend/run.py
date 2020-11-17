@@ -4,13 +4,13 @@ from numbers import Number
 
 import nni
 
-from blindml.backend.search.data_search import load_logans_data
 from blindml.backend.search.model_search.hp_search import get_model_hps
 from blindml.backend.search.model_search.model_select import get_model_cons
 from blindml.backend.search.preprocessing.selection import select_features
 from blindml.backend.search.preprocessing.transform import scale, get_splits
-from blindml.backend.training.metrics import get_mse
 from blindml.backend.training.train import train, eval_model
+from blindml.data.dataset import TabularDataset
+from blindml.frontend.reporting.metrics import get_mse, get_r2
 
 log = logging.getLogger(__file__)
 
@@ -37,19 +37,44 @@ def get_model(params):
     return model
 
 
+def get_dataset(params) -> TabularDataset:
+    data_path = params["data_path"]
+    if data_path.endswith(".csv"):
+        if "X_cols" in params:
+            data_set = TabularDataset(
+                csv_fp=data_path, y_col=params["y_col"], X_cols=params["X_cols"]
+            )
+        elif "drop_cols" in params:
+            data_set = TabularDataset(
+                csv_fp=data_path, y_col=params["y_col"], drop_cols=params["drop_cols"]
+            )
+        else:
+            raise Exception("unknown dataset columns format")
+    else:
+        raise Exception(f"unsupported data set {data_path}")
+    return data_set
+
+
 def main():
     params = nni.get_next_parameter()
     model = get_model(params)
+    data_set = get_dataset(params)
+    X, y = data_set.get_data(dropna=True)
 
-    X, y = load_logans_data()
+    # TODO: this shouldn't be done - this should be part of search
     X_scaled = scale(X)
     X_train, X_test, y_train, y_test = get_splits(X_scaled, y)
     X_selected_train, feat_idxs = select_features(X_train, y_train)
 
     model = train(X_selected_train, y_train, model)
     y_pred = eval_model(X_test[:, feat_idxs], model)
-    score = get_mse(y_test, y_pred)
-    nni.report_final_result(score)
+    mse_score = get_mse(y_test, y_pred)
+    r2_score = get_r2(y_test, y_pred)
+    nni.report_final_result({
+        "mse": mse_score,
+        "default": mse_score,
+        "r2": r2_score,
+    })
 
 
 if __name__ == "__main__":

@@ -10,7 +10,10 @@ pandas
 dill
 pytest
 jsonnet
-Gooey
 glom
 matplotlib
 joblib
+seaborn
+jupyter
+mypy
+data-science-types

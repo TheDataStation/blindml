@@ -1,31 +1,20 @@
 from pprint import pprint
 
-from gooey import GooeyParser
-
 from blindml.frontend.config.task.task import parse_task_capsule
+from blindml.frontend.reporting.metrics import plot_trial_record
 
 
-# this function should either parse a jsonnet or create one using a gui.
-# nothing else. leave the running of stuff to the task class itself
-# @Gooey(target="ffmpeg", program_name="Frame Extraction v1.0", suppress_gooey_flag=True)
-def main():
-    parser = GooeyParser(description="BlindML")
-    parser.add_argument(
-        "-f",
-        default="/Users/maksim/dev_projects/blindml/tests/task.jsonnet",
-        help="Task capsule file path",
-        dest="task_file_fp",
-    )
-    args = parser.parse_args()
-
-    task = parse_task_capsule(args.task_file_fp)
-    # task.run()
-    # pprint(task.get_experiment_update())
-    task.save_best_model("/Users/maksim/dev_projects/blindml/tests")
-    model, scores = task.load_best_model("/Users/maksim/dev_projects/blindml/tests")
-    pprint(scores)
-
+def main(task_file_fp):
+    task = parse_task_capsule(task_file_fp)
+    # task.search_for_model()
+    metric_values = task.get_model_search_update()
+    plot_trial_record(metric_values)
+    res = task.train_best_model()
+    # print(res["hyper_parameters"])
+    # task.save_model(res, "/Users/maksim/dev_projects/blindml/tests")
+    # res = task.load_model("/Users/maksim/dev_projects/blindml/tests")
+    # pprint(res["scores"])
 
 
 if __name__ == "__main__":
-    main()
+    main("/Users/maksim/dev_projects/blindml/tests/task.jsonnet")

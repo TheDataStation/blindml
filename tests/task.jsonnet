@@ -5,7 +5,7 @@
     type: 'regression',
     payload: {
       y_col: 'EA',
-      extra_cols: [
+      drop_cols: [
         'inchi_key',
         'wall_time_neutral',
         'EA_wall_time',
@@ -16,7 +16,7 @@
         'smiles',
         'inchi',
       ],
-      data: "/Users/maksim/dev_projects/blindml/data/xtb-redox.csv"
+      data_path: "/Users/maksim/dev_projects/blindml/data/xtb-redox.csv"
     },
   },
   dos: {
