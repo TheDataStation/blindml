@@ -8,41 +8,35 @@
 ```
 blindml/
 ├── backend
+│   ├── buid_model_search_space.py
+│   ├── nni_helper.py
 │   ├── run.py
 │   ├── search
-│   │   ├── buid_search_space.py
-│   │   ├── data_search.py
 │   │   ├── model_search
-│   │   │   ├── arch_search.py
 │   │   │   ├── hp.json
 │   │   │   ├── hp_search.py
 │   │   │   ├── model_select.json
 │   │   │   └── model_select.py
-│   │   ├── preprocessing
-│   │   │   ├── selection.py
-│   │   │   └── transform.py
-│   │   └── search_space.json
+│   │   └── preprocessing
+│   │       ├── selection.py
+│   │       └── transform.py
+│   ├── search_space.json
 │   └── training
-│       ├── distributed.py
-│       ├── hpo.py
-│       ├── metrics.py
 │       └── train.py
+├── data
+│   ├── dataset.py
+│   └── statistics.py
 ├── frontend
 │   ├── config
-│   │   ├── data
-│   │   │   ├── labels.py
-│   │   │   └── samples.py
 │   │   └── task
-│   │       ├── budget.py
-│   │       ├── expectations.py
-│   │       └── objective.py
+│   │       └── task.py
 │   ├── reporting
-│   │   ├── curves.py
-│   │   └── statistics.py
+│   │   └── metrics.py
 │   └── results
 │       ├── api.py
 │       └── labels.py
-└── runner.py
+├── runner.py
+└── util.py
 ```
 
 <img width="1237" alt="image" src="https://user-images.githubusercontent.com/5657668/97810686-63ec2280-1c3b-11eb-8624-fef46da8e568.png">
