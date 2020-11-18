@@ -95,6 +95,8 @@ class Task:
         sorted_good_trials = get_experiment_update(self._nni_experiment_config)
         # resort by time
         metric_values = [s["finalMetricData"] for s in sorted_good_trials]
+        if len(metric_values) == 0:
+            print("no successfully trained models yet")
         return metric_values[::-1]
 
     def get_top_model(self):
@@ -104,7 +106,8 @@ class Task:
         return top_trial["finalMetricData"][0]["data"], top_trial["hyperParameters"]
 
     def train_best_model(self):
-        score, hyper_parameters = self.get_model_search_update()
+        sorted_good_trials = get_experiment_update(self._nni_experiment_config)
+        hyper_parameters = sorted_good_trials[0]["hyperParameters"]
         model = get_model(hyper_parameters)
 
         X, y = self._data_set.get_data(dropna=True)

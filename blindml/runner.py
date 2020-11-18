@@ -10,7 +10,7 @@ def main(task_file_fp):
     metric_values = task.get_model_search_update()
     plot_trial_record(metric_values)
     res = task.train_best_model()
-    # print(res["hyper_parameters"])
+    print(res["hyper_parameters"])
     # task.save_model(res, "/Users/maksim/dev_projects/blindml/tests")
     # res = task.load_model("/Users/maksim/dev_projects/blindml/tests")
     # pprint(res["scores"])

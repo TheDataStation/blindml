@@ -25,7 +25,7 @@ class TabularDataset:
         self._X_cols = X_cols
 
     def get_data(self, dropna=False):
-        if not (self._X and self._y):
+        if (self._X is None) or (self._y is None):
             df = self._df[self._X_cols + [self._y_col]]
             if dropna:
                 df = df.dropna(axis="index")
