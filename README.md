@@ -43,7 +43,7 @@ blindml/
 
 # Entry point
 
-Execute `./run.sh` to find start `nni` and find parameters for an `sklearn` model.
+[demo notebook](demo.ipynb)
 
 # Requirements
 
