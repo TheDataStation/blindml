@@ -13,13 +13,9 @@ class TabularDataset:
     _X: np.ndarray = None
     _y: np.ndarray = None
 
-    def __init__(self, csv_fp, y_col, X_cols=None, drop_cols=None) -> None:
+    def __init__(self, csv_fp, y_col, X_cols) -> None:
         self._csv_fp = csv_fp
         self._df = pd.read_csv(csv_fp)
-        # XOR
-        assert X_cols != drop_cols
-        if drop_cols:
-            X_cols = list(set(self._df.columns) - set(drop_cols) - {y_col})
 
         self._y_col = y_col
         self._X_cols = X_cols

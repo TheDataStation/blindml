@@ -10,7 +10,6 @@ from subprocess import check_call, CalledProcessError, Popen, PIPE, STDOUT, call
 
 import psutil
 from nni.package_utils import get_builtin_module_class_name, get_nni_installation_path
-from nni_cmd.command_utils import kill_command
 from nni_cmd.common_utils import print_error, print_normal, detect_process, detect_port
 from nni_cmd.config_utils import Config, Experiments
 from nni_cmd.constants import (
@@ -28,7 +27,7 @@ from nni_cmd.launcher import (
 from nni_cmd.nnictl_utils import (
     get_config_filename,
     convert_time_stamp_to_date,
-    stop_experiment,
+    # stop_experiment,
     update_experiment,
     parse_ids,
 )
@@ -187,6 +186,7 @@ def create_experiment(args, experiment_config):
     nni_config.set_config("restServerPort", args.port)
     try:
         # TODO: this method mutates nni_config
+        # TODO: i had to hack nni/main.js
         launch_experiment(
             args, experiment_config, "new", experiment_name, experiment_name
         )
@@ -285,6 +285,7 @@ def make_nni_experiment_config(experiment_name, search_space, hours=1, max_trial
         "maxTrialNum": max_trials,
         "trainingServicePlatform": "local",
         "trial": {
+            # TODO: hardcoded
             "codeDir": "/Users/maksim/dev_projects/blindml/",
             "command": "python3 -m blindml.backend.run",
             "gpuNum": 0,
@@ -342,7 +343,6 @@ def get_experiment_update(experiment_config):
 
 
 def manage_stopped_experiment(args, mode):
-    """view a stopped experiment"""
     update_experiment()
     experiment_config = Experiments()
     experiment_dict = experiment_config.get_all_experiments()
@@ -438,7 +438,7 @@ def start_rest_server(
         print_error("Fail to find nni under python library")
         exit(1)
     entry_file = os.path.join(entry_dir, "main.js")
-
+    print(entry_file)
     node_command = "node"
     if sys.platform == "win32":
         node_command = os.path.join(entry_dir[:-3], "Scripts", "node.exe")

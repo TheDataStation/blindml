@@ -1,3 +1,4 @@
+import csv
 import json
 from pprint import pformat
 from types import SimpleNamespace
@@ -53,36 +54,34 @@ class Task:
         self._experiment_name = f"{self.user}s_experiment"
         self._experiment_name_with_hash = f"{self._experiment_name}_{self._task_hash}"
         if self._data_path.endswith(".csv"):
-            if hasattr(self._task.payload, "X_cols"):
-                self._data_set = TabularDataset(
-                    csv_fp=self._data_path,
-                    y_col=self._task.payload.y_col,
-                    X_cols=self._task.X_cols,
-                )
-                search_space = build_model_search_space(
-                    task_type=self.task_type,
-                    data_path=self._data_path,
-                    y_col=self._task.payload.y_col,
-                    X_cols=self._task.X_cols,
-                )
-            elif hasattr(self._task.payload, "drop_cols"):
-                self._data_set = TabularDataset(
-                    csv_fp=self._data_path,
-                    y_col=self._task.payload.y_col,
-                    drop_cols=self._task.payload.drop_cols,
-                )
-                search_space = build_model_search_space(
-                    task_type=self.task_type,
-                    data_path=self._data_path,
-                    y_col=self._task.payload.y_col,
-                    drop_cols=self._task.payload.drop_cols,
-                )
+            all_columns = next(csv.reader(open(self._data_path, "r")))
+            # XOR
+            assert hasattr(self._task.payload, "X_cols") != hasattr(self._task.payload, "drop_cols")
+            if hasattr(self._task.payload, "drop_cols"):
+                X_cols = list(set(all_columns) - set(self._task.payload.drop_cols) - {self._task.payload.y_col})
             else:
-                raise Exception("unknown dataset columns format")
+                X_cols = self._task.X_cols
 
-        # vim nni/main.js
-        #     // const expId = createNew ? utils_1.uniqueString(8) : resumeExperimentId;
-        #     const expId = resumeExperimentId;
+            self._data_set = TabularDataset(
+                csv_fp=self._data_path,
+                y_col=self._task.payload.y_col,
+                X_cols=X_cols,
+            )
+            # TODO: this is a hack - we shouldn't be passing dataset to the search space
+            # the data on demand module should find the relevant dataset
+            search_space = build_model_search_space(
+                task_type=self.task_type,
+                data_path=self._data_path,
+                y_col=self._task.payload.y_col,
+                X_cols=X_cols,
+            )
+        else:
+            raise Exception("unsupported dataset")
+
+        # TODO: i had change this but now i can't find where this file is???
+        # vim venv/nni/main.js
+        # // const expId = createNew ? utils_1.uniqueString(8) : resumeExperimentId;
+        # const expId = resumeExperimentId;
         self._nni_experiment_config = make_nni_experiment_config(
             self._experiment_name_with_hash, search_space
         )
@@ -146,16 +145,3 @@ class Task:
 def parse_task_capsule(task_fp):
     return Task(task_fp)
 
-    # csv_fp = glom(task, 'task.payload.data')
-    # y_col = glom(task, 'task.payload.y_col')
-    # extra_cols = glom(task, 'task.payload.extra_cols')
-    # df = load_csv_data(csv_fp, extra_cols)
-    # return df, y_col
-
-
-# if __name__ == '__main__':
-# import nni.protocol
-# s = "{\"task_type\": {\"_type\": \"choice\", \"_value\": [{\"_name\": \"regression\", \"model\": {\"_type\": \"choice\", \"_value\": [{\"_name\": \"ARDRegression\", \"alpha_1\": {\"_type\": \"qloguniform\", \"_value\": [1e-06, 1.0, 10]}, \"alpha_2\": {\"_type\": \"qloguniform\", \"_value\": [1e-06, 1.0, 10]}, \"lambda_1\": {\"_type\": \"qloguniform\", \"_value\": [1e-06, 1.0, 10]}, \"lambda_2\": {\"_type\": \"qloguniform\", \"_value\": [1e-06, 1.0, 10]}}, {\"_name\": \"DecisionTreeRegressor\", \"criterion\": {\"_type\": \"choice\", \"_value\": [\"mse\", \"friedman_mse\", \"mae\"]}, \"max_depth\": {\"_type\": \"choice\", \"_value\": [2, 4, 8, 16, null]}, \"max_features\": {\"_type\": \"choice\", \"_value\": [\"auto\", \"sqrt\", \"log2\", null]}}, {\"_name\": \"ElasticNet\", \"alpha\": {\"_type\": \"qloguniform\", \"_value\": [1e-06, 1.0, 10]}, \"l1_ratio\": {\"_type\": \"qloguniform\", \"_value\": [1e-06, 1.0, 10]}}, {\"_name\": \"GaussianProcessRegressor\", \"alpha\": {\"_type\": \"qloguniform\", \"_value\": [1e-10, 1.0, 10]}, \"kernel\": {\"_type\": \"choice\", \"_value\": [\"white\", \"rbf\", \"matern\", \"rational_quad\", \"exp_sine_squared\", \"dot\"]}}, {\"_name\": \"KernelRidgeRegression\", \"alpha\": {\"_type\": \"qloguniform\", \"_value\": [1e-06, 1.0, 10]}, \"kernel\": {\"_type\": \"choice\", \"_value\": [\"additive_chi2\", \"chi2\", \"linear\", \"polynomial\", \"poly\", \"rbf\", \"laplacian\", \"sigmoid\", \"cosine\"]}}, {\"_name\": \"Lars\", \"jitter\": {\"_type\": \"uniform\", \"_value\": [0.0, 1.0]}}, {\"_name\": \"Lasso\", \"alpha\": {\"_type\": \"qloguniform\", \"_value\": [1e-06, 1.0, 10]}}, {\"_name\": \"LinearRegression\"}, {\"_name\": \"LogisticRegression\", \"dual\": {\"_type\": \"choice\", \"_value\": [true, false]}, \"penalty\": {\"_type\": \"choice\", \"_value\": [\"l1\", \"l2\"]}, \"C\": {\"_type\": \"qloguniform\", \"_value\": [1e-06, 1.0, 10]}}, {\"_name\": \"NearestNeighborsRegressor\", \"n_neighbors\": {\"_type\": \"quniform\", \"_value\": [5, 100, 10]}, \"weights\": {\"_type\": \"choice\", \"_value\": [\"uniform\", \"distance\"]}, \"p\": {\"_type\": \"choice\", \"_value\": [1, 2]}, \"metric\": {\"_type\": \"choice\", \"_value\": [\"euclidean\", \"manhattan\", \"chebyshev\", \"minkowski\", \"wminkowski\", \"seuclidean\", \"mahalanobis\"]}}, {\"_name\": \"SVR\", \"kernel\": {\"_type\": \"choice\", \"_value\": [\"linear\", \"poly\", \"rbf\", \"sigmoid\", \"precomputed\"]}, \"gamma\": {\"_type\": \"choice\", \"_value\": [\"scale\", \"auto\"]}, \"C\": {\"_type\": \"qloguniform\", \"_value\": [1e-06, 1.0, 10]}, \"shrinking\": {\"_type\": \"choice\", \"_value\": [true, false]}}]}}]}}"
-# h = HyperoptTuner("tpe")
-# m = MsgDispatcher(h)
-# m.handle_initialize(json.loads(s))
