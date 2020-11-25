@@ -56,7 +56,7 @@ class TabularDataset:
     def get_data_stats(self):
         return self._df.describe()
 
-    def show_feature_correlation(self):
+    def plot_feature_correlation(self):
         show_correlation(self._df[self._X_cols].values, self._X_cols)
 
 

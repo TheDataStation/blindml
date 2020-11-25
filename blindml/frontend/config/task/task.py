@@ -1,4 +1,5 @@
 import csv
+import numpy as np
 import json
 from pprint import pformat
 from types import SimpleNamespace
@@ -17,7 +18,13 @@ from blindml.backend.run import get_model
 from blindml.backend.search.preprocessing.selection import select_features
 from blindml.backend.training.train import train
 from blindml.data.dataset import TabularDataset
-from blindml.frontend.reporting.explanations import get_perm_feat_import
+from blindml.frontend.reporting.explanations import (
+    get_perm_feat_import,
+    plot_partial_dep,
+    plot_feat_import,
+    get_very_important_features,
+)
+from blindml.frontend.reporting.metrics import plot_trial_record
 from blindml.util import dict_hash
 
 
@@ -123,13 +130,50 @@ class Task:
         # y_pred = eval_model(X_test[:, feat_idxs], model)
         return model
 
-    def get_feature_importance(self, model=None):
+    def get_explanations(self, model=None):
         if model is None:
             model = self.train_best_model()
+
+        print("trial record")
+        self.plot_trial_record()
+        try:
+            print("feature correlations")
+            self.plot_feature_correlations()
+        except:
+            pass
+        try:
+            print("feature importances")
+            self.plot_feature_importance(model)
+        except:
+            pass
+
+        try:
+            print("partial dependences and individual conditional expectation")
+            self.plot_partial_dependence(model)
+        except:
+            pass
+
+    def plot_feature_correlations(self):
+        self._data_set.plot_feature_correlation()
+
+    def plot_feature_importance(self, model):
         X_test, y_test = self._data_set.get_test_data()
         # TODO: this should take into account the fact that feature selection ran
-        # self._data_set.show_feature_correlation()
-        get_perm_feat_import(model, X_test, y_test, self._data_set._X_cols)
+        # this is a len(feat)*5 ndarray where each element is basically the change
+        # in score due to permuting that feature with another
+        # large differences in scores implies high importance
+        # WARNING: if you permute with a colinear feature then you'll get zero importance
+        # in theory we should PCA first
+        importances = get_perm_feat_import(model, X_test, y_test)
+        plot_feat_import(importances, self._data_set._X_cols)
+
+    def plot_partial_dependence(self, model):
+        X_test, y_test = self._data_set.get_test_data()
+        plot_partial_dep(model, X_test, y_test, self._data_set._X_cols)
+
+    def plot_trial_record(self):
+        metric_values = self.get_model_search_update()
+        plot_trial_record(metric_values)
 
     def save_model(self, model, f_dir):
         dump(model, f"{f_dir}/{self._experiment_name}.joblib")

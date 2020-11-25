@@ -16,12 +16,14 @@ def get_r2(y_true, y_pred):
 
 
 def plot_trial_record(metric_values):
+    fig, ax = plt.subplots(1, 1, figsize=(12, 8))
     for m in set(metric_values[0].keys()) - {"default"}:
         splot = sns.scatterplot(
             x=range(1, len(metric_values) + 1),
             y=[mm[m] for mm in metric_values],
             label=m,
             legend=True,
+            ax=ax
         )
     splot.set(title="Model search results")
     splot.set(xlabel="trials")

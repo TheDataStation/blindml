@@ -1,5 +1,5 @@
 pip-tools
-scikit-learn
+scikit-learn>=0.24.dev0
 torch
 torchvision
 keras
@@ -7,10 +7,8 @@ tensorflow
 nni
 black
 pandas
-dill
 pytest
 jsonnet
-glom
 matplotlib
 joblib
 seaborn
