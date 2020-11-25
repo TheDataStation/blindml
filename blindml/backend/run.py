@@ -1,3 +1,4 @@
+import csv
 import json
 import logging
 from numbers import Number
@@ -7,9 +8,9 @@ import nni
 from blindml.backend.search.model_search.hp_search import get_model_hps
 from blindml.backend.search.model_search.model_select import get_model_cons
 from blindml.backend.search.preprocessing.selection import select_features
-from blindml.backend.search.preprocessing.transform import scale, get_splits
+from blindml.backend.search.preprocessing.transform import scale
 from blindml.backend.training.train import train, eval_model
-from blindml.data.dataset import TabularDataset
+from blindml.data.dataset import TabularDataset, get_splits
 from blindml.frontend.reporting.metrics import get_mse, get_r2
 
 log = logging.getLogger(__file__)
@@ -40,16 +41,22 @@ def get_model(params):
 def get_dataset(params) -> TabularDataset:
     data_path = params["data_path"]
     if data_path.endswith(".csv"):
-        if "X_cols" in params:
-            data_set = TabularDataset(
-                csv_fp=data_path, y_col=params["y_col"], X_cols=params["X_cols"]
-            )
-        elif "drop_cols" in params:
-            data_set = TabularDataset(
-                csv_fp=data_path, y_col=params["y_col"], drop_cols=params["drop_cols"]
+        all_columns = next(csv.reader(open(data_path, "r", encoding='utf-8-sig')))
+        # XOR
+        assert ("X_cols" in params) != ("drop_cols" in params)
+        if "drop_cols" in params:
+            X_cols = list(
+                set(all_columns)
+                - set(params["drop_cols"])
+                - {params["y_col"]}
             )
         else:
-            raise Exception("unknown dataset columns format")
+            X_cols = params["X_cols"]
+
+        data_set = TabularDataset(
+            csv_fp=data_path, y_col=params["y_col"], X_cols=X_cols
+        )
+
     else:
         raise Exception(f"unsupported data set {data_path}")
     return data_set

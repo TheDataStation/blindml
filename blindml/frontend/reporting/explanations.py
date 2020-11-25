@@ -1,13 +1,18 @@
 from sklearn.inspection import permutation_importance
+from matplotlib import pyplot as plt
+import numpy as np
 
 
-def get_perm_feat_import(model, X_val, y_val):
-    r = permutation_importance(model, X_val, y_val, n_repeats=30)
+def get_perm_feat_import(clf, X_val, y_val, X_cols):
+    feature_names = np.array(X_cols)
+    result = permutation_importance(clf, X_val, y_val, n_repeats=30)
+    perm_sorted_idx = result.importances_mean.argsort()
 
-    for i in r.importances_mean.argsort()[::-1]:
-        if r.importances_mean[i] - 2 * r.importances_std[i] > 0:
-            print(
-                # f"{diabetes.feature_names[i]:<8}"
-                f"{r.importances_mean[i]:.3f}"
-                f" +/- {r.importances_std[i]:.3f}"
-            )
+    fig, ax2 = plt.subplots(1, 1, figsize=(12, 8))
+    ax2.boxplot(
+        result.importances[perm_sorted_idx].T,
+        vert=False,
+        labels=feature_names[perm_sorted_idx],
+    )
+    fig.tight_layout()
+    plt.show()

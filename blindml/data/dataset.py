@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sn
+from sklearn.model_selection import train_test_split
+
+from blindml.data.statistics import show_correlation
 
 
 class TabularDataset:
@@ -9,32 +12,52 @@ class TabularDataset:
     _csv_fp: str
     _y_col: str
     _X_cols: list
-    __drop_cols: list
     _X: np.ndarray = None
     _y: np.ndarray = None
+    _X_train: np.ndarray = None
+    _y_train: np.ndarray = None
+    _X_test: np.ndarray = None
+    _y_test: np.ndarray = None
+    _test_size: float = 0.20
+    _dropna: bool = True
 
-    def __init__(self, csv_fp, y_col, X_cols) -> None:
+    def __init__(self, csv_fp, y_col, X_cols, dropna=True) -> None:
         self._csv_fp = csv_fp
         self._df = pd.read_csv(csv_fp)
+        self._dropna = dropna
 
         self._y_col = y_col
         self._X_cols = X_cols
 
     def get_data(self, dropna=False):
-        if (self._X is None) or (self._y is None):
+        if self._X is None or self._y is None:
             df = self._df[self._X_cols + [self._y_col]]
             if dropna:
                 df = df.dropna(axis="index")
             self._X, self._y = split_df_X_y(self._y_col, df)
         return self._X, self._y
 
+    def get_train_data(self):
+        if self._X_train is None or self._y_train is None:
+            X, y = self.get_data()
+            self._X_train, self._X_test, self._y_train, self._y_test = get_splits(
+                X, y, test_size=self._test_size
+            )
+        return self._X_train, self._y_train
+
+    def get_test_data(self):
+        if self._X_test is None or self._y_test is None:
+            X, y = self.get_data()
+            self._X_train, self._X_test, self._y_train, self._y_test = get_splits(
+                X, y, test_size=self._test_size
+            )
+        return self._X_test, self._y_test
+
     def get_data_stats(self):
         return self._df.describe()
 
     def show_feature_correlation(self):
-        corr = self._df[self._X_cols].corr()
-        sn.heatmap(corr, annot=True)
-        plt.show()
+        show_correlation(self._df[self._X_cols].values, self._X_cols)
 
 
 def split_df_X_y(y_col, df: pd.DataFrame):
@@ -47,3 +70,10 @@ def load_csv_data(csv_fp, extra_cols):
     df = df.drop(columns=extra_cols)
     df = df.dropna(axis="index")
     return df
+
+
+def get_splits(X, y, test_size=0.20):
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=42
+    )
+    return X_train, X_test, y_train, y_test

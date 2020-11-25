@@ -438,7 +438,6 @@ def start_rest_server(
         print_error("Fail to find nni under python library")
         exit(1)
     entry_file = os.path.join(entry_dir, "main.js")
-    print(entry_file)
     node_command = "node"
     if sys.platform == "win32":
         node_command = os.path.join(entry_dir[:-3], "Scripts", "node.exe")

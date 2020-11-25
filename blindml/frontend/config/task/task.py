@@ -15,10 +15,9 @@ from blindml.backend.nni_helper import (
 )
 from blindml.backend.run import get_model
 from blindml.backend.search.preprocessing.selection import select_features
-from blindml.backend.search.preprocessing.transform import scale, get_splits
-from blindml.backend.training.train import train, eval_model
+from blindml.backend.training.train import train
 from blindml.data.dataset import TabularDataset
-from blindml.frontend.reporting.metrics import Metric, get_mse, get_r2
+from blindml.frontend.reporting.explanations import get_perm_feat_import
 from blindml.util import dict_hash
 
 
@@ -54,18 +53,24 @@ class Task:
         self._experiment_name = f"{self.user}s_experiment"
         self._experiment_name_with_hash = f"{self._experiment_name}_{self._task_hash}"
         if self._data_path.endswith(".csv"):
-            all_columns = next(csv.reader(open(self._data_path, "r")))
+            all_columns = next(
+                csv.reader(open(self._data_path, "r", encoding="utf-8-sig"))
+            )
             # XOR
-            assert hasattr(self._task.payload, "X_cols") != hasattr(self._task.payload, "drop_cols")
+            assert hasattr(self._task.payload, "X_cols") != hasattr(
+                self._task.payload, "drop_cols"
+            )
             if hasattr(self._task.payload, "drop_cols"):
-                X_cols = list(set(all_columns) - set(self._task.payload.drop_cols) - {self._task.payload.y_col})
+                X_cols = list(
+                    set(all_columns)
+                    - set(self._task.payload.drop_cols)
+                    - {self._task.payload.y_col}
+                )
             else:
                 X_cols = self._task.X_cols
 
             self._data_set = TabularDataset(
-                csv_fp=self._data_path,
-                y_col=self._task.payload.y_col,
-                X_cols=X_cols,
+                csv_fp=self._data_path, y_col=self._task.payload.y_col, X_cols=X_cols
             )
             # TODO: this is a hack - we shouldn't be passing dataset to the search space
             # the data on demand module should find the relevant dataset
@@ -78,7 +83,7 @@ class Task:
         else:
             raise Exception("unsupported dataset")
 
-        # TODO: i had change this but now i can't find where this file is???
+        # TODO: this is a dirty hack in order to have a fixed experiment name in both blindml and nni
         # vim venv/nni/main.js
         # // const expId = createNew ? utils_1.uniqueString(8) : resumeExperimentId;
         # const expId = resumeExperimentId;
@@ -92,40 +97,39 @@ class Task:
 
     def get_model_search_update(self):
         sorted_good_trials = get_experiment_update(self._nni_experiment_config)
-        # resort by time
+        # re-sort by time
         metric_values = [s["finalMetricData"] for s in sorted_good_trials]
         if len(metric_values) == 0:
             print("no successfully trained models yet")
         return metric_values[::-1]
 
-    def get_top_model(self):
-        # TODO: massage this into something more useful
-        sorted_good_trials = get_experiment_update(self._nni_experiment_config)
-        top_trial = sorted_good_trials[0]
-        return top_trial["finalMetricData"][0]["data"], top_trial["hyperParameters"]
-
-    def train_best_model(self):
+    def get_best_model(self):
         sorted_good_trials = get_experiment_update(self._nni_experiment_config)
         hyper_parameters = sorted_good_trials[0]["hyperParameters"]
         model = get_model(hyper_parameters)
+        return model
 
-        X, y = self._data_set.get_data(dropna=True)
-        # TODO: this should be part of model search
-        X_scaled = scale(X)
-        X_train, X_test, y_train, y_test = get_splits(X_scaled, y)
+    def train_best_model(self):
+        model = self.get_best_model()
+
+        # # TODO: this should be part of model search
+        # X_scaled = scale(X)
+
+        X_train, y_train = self._data_set.get_train_data()
         X_selected_train, feat_idxs = select_features(X_train, y_train)
 
         model = train(X_selected_train, y_train, model)
-        # TODO: stub
-        y_pred = eval_model(X_test[:, feat_idxs], model)
-        return {
-            "model": model,
-            "scores": {
-                str(Metric.MSE): get_mse(y_test, y_pred),
-                str(Metric.R2): get_r2(y_test, y_pred),
-            },
-            "hyper_parameters": hyper_parameters,
-        }
+        # TODO: include or don't the metrics in the serialization?
+        # y_pred = eval_model(X_test[:, feat_idxs], model)
+        return model
+
+    def get_feature_importance(self, model=None):
+        if model is None:
+            model = self.train_best_model()
+        X_test, y_test = self._data_set.get_test_data()
+        # TODO: this should take into account the fact that feature selection ran
+        # self._data_set.show_feature_correlation()
+        get_perm_feat_import(model, X_test, y_test, self._data_set._X_cols)
 
     def save_model(self, model, f_dir):
         dump(model, f"{f_dir}/{self._experiment_name}.joblib")
@@ -144,4 +148,3 @@ class Task:
 
 def parse_task_capsule(task_fp):
     return Task(task_fp)
-

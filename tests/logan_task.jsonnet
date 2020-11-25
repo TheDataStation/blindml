@@ -4,19 +4,19 @@
   task: {
     type: 'regression',
     payload: {
-      y_col: 'energy_above_hull (meV/atom)',
+      y_col: 'EA',
       drop_cols: [
-        'formation_energy (eV/atom)',
-        'Material Composition',
-        'A site #1',
-        'A site #2',
-        'A site #3',
-        'B site #1',
-        'B site #2',
-        'B site #3',
-        'X site',
+        'inchi_key',
+        'wall_time_neutral',
+        'EA_wall_time',
+        'IP_wall_time',
+        'xyz_neutral',
+        'xyz_reduced',
+        'xyz_oxidized',
+        'smiles',
+        'inchi',
       ],
-      data_path: "/Users/maksim/dev_projects/blindml/data/Perovskite_Stability_with_features.csv"
+      data_path: "/Users/maksim/dev_projects/blindml/data/xtb-redox.csv"
     },
   },
   dos: {
