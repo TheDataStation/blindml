@@ -6,6 +6,7 @@ import string
 import sys
 import time
 from functools import cmp_to_key
+from pprint import pprint
 from subprocess import check_call, CalledProcessError, Popen, PIPE, STDOUT, call
 
 import psutil
@@ -278,6 +279,7 @@ DEFAULT_SEARCH_SPACE_PATH = os.path.split(__file__)[0] + "/" + "search_space.jso
 
 
 def make_nni_experiment_config(experiment_name, search_space, hours=1, max_trials=1000):
+    here = os.path.dirname(os.path.abspath(__file__))
     return {
         "authorName": "default",
         "experimentName": experiment_name,
@@ -285,10 +287,9 @@ def make_nni_experiment_config(experiment_name, search_space, hours=1, max_trial
         "maxTrialNum": max_trials,
         "trainingServicePlatform": "local",
         "trial": {
-            # TODO: hardcoded
-            "codeDir": "/Users/maksim/dev_projects/blindml/",
-            "command": "python3 -m blindml.backend.run",
-            "gpuNum": 0,
+            "codeDir": f"{here}/../../../blindml/",
+            "command": "source venv/bin/activate && python3 -m blindml.backend.run",
+            # "gpuNum": 0,
         },
         "trialConcurrency": 1,
         "tuner": {
@@ -534,3 +535,7 @@ def kill_command(pid):
     else:
         cmds = ["kill", "-9", str(pid)]
         call(cmds)
+
+
+if __name__ == "__main__":
+    pprint(make_nni_experiment_config("test", {}))
