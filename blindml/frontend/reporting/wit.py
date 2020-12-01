@@ -102,9 +102,11 @@ def examples_to_array(
     data = OrderedDict((x_col, []) for x_col in X_cols)
     for ex in examples:
         for feat_name, feat_vals in ex.features.feature.items():
-            assert (
-                feat_name in X_cols
-            ), f"feat name {feat_name} from examples not in expected X_cols"
+            if feat_name not in X_cols:
+                continue
+            # assert (
+            #     feat_name in X_cols
+            # ), f"feat name {feat_name} from examples not in expected X_cols"
             assert (
                 len(feat_vals.ListFields()) == 1
             ), "we don't support multifield features"
