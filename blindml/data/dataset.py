@@ -11,6 +11,8 @@ class TabularDataset:
     _df: pd.DataFrame
     _csv_fp: str
     _y_col: str
+    # TODO: this is sloppy because it depends on ordering staying fixed
+    # it should be some kind of spec with ordering included
     _X_cols: list
     _X: np.ndarray = None
     _y: np.ndarray = None

@@ -19,6 +19,13 @@ Don't update `requirements.txt`; instead update `requirements.in` and run `pip-c
 pip-compile --extra-index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple
 ```
 
+## What-if
+
+```
+jupyter nbextension install --py --symlink --sys-prefix witwidget
+jupyter nbextension enable --py --sys-prefix witwidget
+```
+
 # TODO
 
 spinners for long running "explanation" functions.

@@ -123,7 +123,8 @@ class Task:
         # X_scaled = scale(X)
 
         X_train, y_train = self._data_set.get_train_data()
-        X_selected_train, feat_idxs = select_features(X_train, y_train)
+        feat_idxs = select_features(X_train, y_train)
+        X_selected_train = X_train[:, feat_idxs]
 
         model = train(X_selected_train, y_train, model)
         # TODO: include or don't the metrics in the serialization?

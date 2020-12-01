@@ -15,4 +15,4 @@ def select_features(X_train, y_train):
     if not feat_idxs:
         _rows, cols = X_train.shape
         feat_idxs = np.arange(cols)
-    return X_train[:, feat_idxs], feat_idxs
+    return feat_idxs
