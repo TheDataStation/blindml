@@ -19,6 +19,14 @@ Don't update `requirements.txt`; instead update `requirements.in` and run `pip-c
 pip-compile --extra-index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple
 ```
 
+Note that you will need to use the same flag when installing:
+
+```
+pip install -r requirements.txt --extra-index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple
+```
+
+Also if you run into an error about `tensorflow==2.3.1` then you need to `pip install --upgrade pip`.
+
 ## What-if
 
 ```
