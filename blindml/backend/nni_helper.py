@@ -289,7 +289,7 @@ def make_nni_experiment_config(experiment_name, search_space, hours=1, max_trial
         "trial": {
             "codeDir": f"{here}/../../../blindml/",
             "command": "source venv/bin/activate && python3 -m blindml.backend.run",
-            "gpuNum": 0,
+            # "gpuNum": 0,
         },
         "trialConcurrency": 1,
         "tuner": {
