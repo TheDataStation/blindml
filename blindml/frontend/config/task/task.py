@@ -3,6 +3,7 @@ import json
 from pprint import pformat
 from types import SimpleNamespace
 from typing import Any, Union
+from black import main, format_file_contents, Mode
 
 import _jsonnet as jsonnet
 from IPython.core.display import display
@@ -206,7 +207,10 @@ class Task:
 
     # goal is to be readable
     def __str__(self):
-        return pformat(json.loads(self._json_str), indent=2)
+        try:
+            return format_file_contents(self._json_str, fast=True, mode=Mode())
+        except:
+            return pformat(json.loads(self._json_str), indent=2)
 
 
 def parse_task_capsule(task_fp):
