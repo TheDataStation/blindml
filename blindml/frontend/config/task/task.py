@@ -206,7 +206,7 @@ class Task:
 
     # goal is to be readable
     def __str__(self):
-        return pformat(json.loads(self._json_str), indent=2, width=40)
+        return pformat(json.loads(self._json_str), indent=2)
 
 
 def parse_task_capsule(task_fp):
