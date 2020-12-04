@@ -121,3 +121,9 @@ def examples_to_array(
 # Used to force label columns to be numeric for binary classification using a TF estimator.
 def make_label_column_numeric(df, label_column, test):
     df[label_column] = np.where(test(df[label_column]), 1, 0)
+
+
+# takes a proto that's a list of protos
+def custom_predict(model, X_cols, examples_to_infer: List[tf.train.Example]):
+    arr = examples_to_array(examples_to_infer, X_cols)
+    return model.predict(arr)

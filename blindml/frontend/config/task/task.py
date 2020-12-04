@@ -6,7 +6,9 @@ from types import SimpleNamespace
 from typing import Any, Union
 
 import _jsonnet as jsonnet
+from IPython.core.display import display
 from joblib import load, dump
+from witwidget import WitConfigBuilder, WitWidget
 
 from blindml.backend.buid_model_search_space import build_model_search_space
 from blindml.backend.nni_helper import (
@@ -25,6 +27,7 @@ from blindml.frontend.reporting.explanations import (
     get_very_important_features,
 )
 from blindml.frontend.reporting.metrics import plot_trial_record
+from blindml.frontend.reporting.wit import df_to_examples, custom_predict
 from blindml.util import dict_hash
 
 
@@ -153,6 +156,35 @@ class Task:
             self.plot_partial_dependence(model)
         except:
             pass
+
+    def get_wit(self, model=None):
+        if model is None:
+            model = self.train_best_model()
+
+        df = self._data_set._df
+        X_cols, y_col = self._data_set._X_cols, self._data_set._y_col
+        features_and_labels = X_cols + [y_col]
+        # examples = df_to_examples(df)
+        # feature_spec = create_feature_spec(df, features_and_labels)
+        # create_feature_columns(X_cols, feature_spec)
+
+        num_datapoints = 1000
+        test_examples = df_to_examples(
+            self._data_set._df[features_and_labels][0:num_datapoints]
+        )
+        config_builder = (
+            WitConfigBuilder(
+                test_examples[:num_datapoints], feature_names=features_and_labels
+            )
+            # TODO: the task should be aware of itself (i.e. what kind of task it is)
+            .set_model_type("regression")
+            .set_custom_predict_fn(
+                lambda examples: custom_predict(model, X_cols, examples)
+            )
+            .set_target_feature(y_col)
+        )
+
+        display(WitWidget(config_builder, height=1500))
 
     def plot_feature_correlations(self):
         self._data_set.plot_feature_correlation()
