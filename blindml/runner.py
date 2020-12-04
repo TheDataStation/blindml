@@ -16,6 +16,7 @@ def run(task_file_fp):
 
 def run_wit(task_file_fp):
     task = parse_task_capsule(task_file_fp)
+    print(task)
     task.search_for_model()
     while not task.get_model_search_update():
         print("no model trained yet")

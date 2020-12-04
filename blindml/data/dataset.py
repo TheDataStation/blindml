@@ -61,6 +61,18 @@ class TabularDataset:
     def plot_feature_correlation(self):
         show_correlation(self._df[self._X_cols].values, self._X_cols)
 
+    @property
+    def df(self):
+        return self._df
+
+    @property
+    def X_cols(self):
+        return self._X_cols
+
+    @property
+    def y_col(self):
+        return self._y_col
+
 
 def split_df_X_y(y_col, df: pd.DataFrame):
     X, y = df[list(set(df.columns.values) - {y_col})].values, df[y_col].values

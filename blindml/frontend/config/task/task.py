@@ -1,5 +1,4 @@
 import csv
-import numpy as np
 import json
 from pprint import pformat
 from types import SimpleNamespace
@@ -24,7 +23,6 @@ from blindml.frontend.reporting.explanations import (
     get_perm_feat_import,
     plot_partial_dep,
     plot_feat_import,
-    get_very_important_features,
 )
 from blindml.frontend.reporting.metrics import plot_trial_record
 from blindml.frontend.reporting.wit import df_to_examples, custom_predict
@@ -129,10 +127,7 @@ class Task:
         feat_idxs = select_features(X_train, y_train)
         X_selected_train = X_train[:, feat_idxs]
 
-        model = train(X_selected_train, y_train, model)
-        # TODO: include or don't the metrics in the serialization?
-        # y_pred = eval_model(X_test[:, feat_idxs], model)
-        return model
+        return train(X_selected_train, y_train, model)
 
     def get_explanations(self, model=None):
         if model is None:
@@ -140,29 +135,20 @@ class Task:
 
         print("trial record")
         self.plot_trial_record()
-        try:
-            print("feature correlations")
-            self.plot_feature_correlations()
-        except:
-            pass
-        try:
-            print("feature importances")
-            self.plot_feature_importance(model)
-        except:
-            pass
 
-        try:
-            print("partial dependences and individual conditional expectation")
-            self.plot_partial_dependence(model)
-        except:
-            pass
+        print("feature correlations")
+        self.plot_feature_correlations()
+        print("feature importances")
+        self.plot_feature_importance(model)
+        print("partial dependences and individual conditional expectation")
+        self.plot_partial_dependence(model)
 
     def get_wit(self, model=None):
         if model is None:
             model = self.train_best_model()
 
-        df = self._data_set._df
-        X_cols, y_col = self._data_set._X_cols, self._data_set._y_col
+        df = self._data_set.df
+        X_cols, y_col = self._data_set.X_cols, self._data_set.y_col
         features_and_labels = X_cols + [y_col]
         # examples = df_to_examples(df)
         # feature_spec = create_feature_spec(df, features_and_labels)
@@ -170,7 +156,7 @@ class Task:
 
         num_datapoints = 1000
         test_examples = df_to_examples(
-            self._data_set._df[features_and_labels][0:num_datapoints]
+            self._data_set.df[features_and_labels][0:num_datapoints]
         )
         config_builder = (
             WitConfigBuilder(
