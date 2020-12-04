@@ -184,7 +184,7 @@ class Task:
             .set_target_feature(y_col)
         )
 
-        display(WitWidget(config_builder, height=1500))
+        display(WitWidget(config_builder))
 
     def plot_feature_correlations(self):
         self._data_set.plot_feature_correlation()
