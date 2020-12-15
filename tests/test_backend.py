@@ -23,7 +23,7 @@ class MyTestCase(unittest.TestCase):
                         "metric": "mahalanobis",
                     },
                 },
-                "data_path": "/Users/maksim/dev_projects/blindml/data/Perovskite_Stability_with_features.csv",
+                "data_path": "./data/Perovskite_Stability_with_features.csv",
                 "y_col": "energy_above_hull (meV/atom)",
                 "X_cols": [
                     "thermal conductivity_AB_avg",
