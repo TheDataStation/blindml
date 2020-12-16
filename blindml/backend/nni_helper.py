@@ -8,6 +8,7 @@ import time
 from functools import cmp_to_key
 from pprint import pprint
 from subprocess import check_call, CalledProcessError, Popen, PIPE, STDOUT, call
+from sys import exit
 
 import psutil
 from nni.package_utils import get_builtin_module_class_name, get_nni_installation_path
