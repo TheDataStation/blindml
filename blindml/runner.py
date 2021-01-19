@@ -15,14 +15,18 @@ def run(task_file_fp):
 
 
 def run_wit(task_file_fp):
+    print("Loading task capsule")
     task = parse_task_capsule(task_file_fp)
-    print(task)
+    # print(task)
+    print("Searching for model")
     task.search_for_model()
+    print("Waiting for model results")
     while not task.get_model_search_update():
         print("no model trained yet")
         time.sleep(5)
-
+    print("Training best model")
     model = task.train_best_model()
+    print("Displaying")
     task.get_wit(model)
 
 
