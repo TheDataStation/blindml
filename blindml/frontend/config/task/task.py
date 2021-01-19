@@ -63,12 +63,13 @@ class Task:
         self._data_path = self._task.payload.data_path
         self._experiment_name = f"{self.user}s_experiment"
         self._experiment_name_with_hash = f"{self._experiment_name}_{self._task_hash}"
+        self._render_data_path = self._data_path
         if self._data_path.endswith(".csv"):
             print("Loading CSV")
             (a,b) = os.path.split(self._data_path)
 
             extra_path = a + "/" "extra_" + b
-            
+
             if(os.path.exists(extra_path)):
                 print("Searching for related data")
                 time.sleep(10)
@@ -94,6 +95,25 @@ class Task:
             self._data_set = TabularDataset(
                 csv_fp=self._data_path, y_col=self._task.payload.y_col, X_cols=X_cols
             )
+
+
+            all_columns = next(
+                csv.reader(open(self._render_data_path, "r", encoding="utf-8-sig"))
+            )
+
+            if hasattr(self._task.payload, "drop_cols"):
+                X_cols = list(
+                    set(all_columns)
+                    - set(self._task.payload.drop_cols)
+                    - {self._task.payload.y_col}
+                )
+            else:
+                X_cols = self._task.X_cols
+
+            self._render_data_set = TabularDataset(
+                csv_fp=self._data_path, y_col=self._task.payload.y_col, X_cols=X_cols
+            )
+
             # TODO: this is a hack - we shouldn't be passing dataset to the search space
             # the data on demand module should find the relevant dataset
             search_space = build_model_search_space(
@@ -160,9 +180,9 @@ class Task:
     def get_wit(self, model=None):
         if model is None:
             model = self.train_best_model()
-
-        df = self._data_set.df
-        X_cols, y_col = self._data_set.X_cols, self._data_set.y_col
+        ds = self._render_data_set
+        df = ds.df
+        X_cols, y_col = ds.X_cols, ds.y_col
         features_and_labels = X_cols + [y_col]
         # examples = df_to_examples(df)
         # feature_spec = create_feature_spec(df, features_and_labels)
@@ -170,7 +190,7 @@ class Task:
 
         num_datapoints = 1000
         test_examples = df_to_examples(
-            self._data_set.df[features_and_labels][0:num_datapoints]
+            ds.df[features_and_labels][0:num_datapoints]
         )
         config_builder = (
             WitConfigBuilder(
