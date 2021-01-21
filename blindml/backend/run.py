@@ -71,11 +71,11 @@ def main():
     # TODO: this shouldn't be done - this should be part of search
     X_scaled = scale(X)
     X_train, X_test, y_train, y_test = get_splits(X_scaled, y)
-    feat_idxs = select_features(X_train, y_train)
-    X_selected_train = X_train[:, feat_idxs]
+    # feat_idxs = select_features(X_train, y_train)
+    X_selected_train = X_train
 
     model = train(X_selected_train, y_train, model)
-    y_pred = eval_model(X_test[:, feat_idxs], model)
+    y_pred = eval_model(X_test, model)
     mse_score = get_mse(y_test, y_pred)
     r2_score = get_r2(y_test, y_pred)
     nni.report_final_result({

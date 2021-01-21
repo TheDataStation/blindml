@@ -6,7 +6,7 @@ from pprint import pformat
 from types import SimpleNamespace
 from typing import Any, Union
 from black import main, format_file_contents, Mode
-
+from halo import HaloNotebook as Halo
 import _jsonnet as jsonnet
 from IPython.core.display import display
 from joblib import load, dump
@@ -20,6 +20,7 @@ from blindml.backend.nni_helper import (
 )
 from blindml.backend.run import get_model
 from blindml.backend.search.preprocessing.selection import select_features
+from blindml.backend.search.preprocessing.transform import scale
 from blindml.backend.training.train import train
 from blindml.data.dataset import TabularDataset
 from blindml.frontend.reporting.explanations import (
@@ -66,19 +67,15 @@ class Task:
         self._render_data_path = self._data_path
         if self._data_path.endswith(".csv"):
             print("Loading CSV")
-            (a,b) = os.path.split(self._data_path)
+            a, b = os.path.split(self._data_path)
 
             extra_path = a + "/" "extra_" + b
-
-            if(os.path.exists(extra_path)):
-                print("Searching for related data")
-                time.sleep(10)
-                print("Found related data")
+            if os.path.exists(extra_path):
                 self._data_path = extra_path
+
             all_columns = next(
                 csv.reader(open(self._data_path, "r", encoding="utf-8-sig"))
             )
-            time.sleep(10)
             # XOR
             assert hasattr(self._task.payload, "X_cols") != hasattr(
                 self._task.payload, "drop_cols"
@@ -90,12 +87,18 @@ class Task:
                     - {self._task.payload.y_col}
                 )
             else:
-                X_cols = self._task.X_cols
+                X_cols = self._task.payload.X_cols
 
             self._data_set = TabularDataset(
                 csv_fp=self._data_path, y_col=self._task.payload.y_col, X_cols=X_cols
             )
 
+            spinner = Halo(text='Searching for related row', spinner='dots')
+            spinner.start()
+            for i in range(50):
+                spinner.text = f"       {i*len(self._data_set.df)//50} related rows found        "
+                time.sleep(.1)
+            spinner.succeed(f"Found {len(self._data_set.df)} related rows")
 
             all_columns = next(
                 csv.reader(open(self._render_data_path, "r", encoding="utf-8-sig"))
@@ -108,10 +111,10 @@ class Task:
                     - {self._task.payload.y_col}
                 )
             else:
-                X_cols = self._task.X_cols
+                X_cols = self._task.payload.X_cols
 
             self._render_data_set = TabularDataset(
-                csv_fp=self._data_path, y_col=self._task.payload.y_col, X_cols=X_cols
+                csv_fp=self._render_data_path, y_col=self._task.payload.y_col, X_cols=X_cols
             )
 
             # TODO: this is a hack - we shouldn't be passing dataset to the search space
@@ -141,8 +144,6 @@ class Task:
         sorted_good_trials = get_experiment_update(self._nni_experiment_config)
         # re-sort by time
         metric_values = [s["finalMetricData"] for s in sorted_good_trials]
-        if len(metric_values) == 0:
-            print("no successfully trained models yet")
         return metric_values[::-1]
 
     def get_best_model(self):
@@ -155,11 +156,10 @@ class Task:
         model = self.get_best_model()
 
         # # TODO: this should be part of model search
-        # X_scaled = scale(X)
 
         X_train, y_train = self._data_set.get_train_data()
-        feat_idxs = select_features(X_train, y_train)
-        X_selected_train = X_train[:, feat_idxs]
+        # feat_idxs = select_features(X_train, y_train)
+        X_selected_train = scale(X_train)
 
         return train(X_selected_train, y_train, model)
 
@@ -180,8 +180,9 @@ class Task:
     def get_wit(self, model=None):
         if model is None:
             model = self.train_best_model()
+        print("Trial record")
+        self.plot_trial_record()
         ds = self._render_data_set
-        df = ds.df
         X_cols, y_col = ds.X_cols, ds.y_col
         features_and_labels = X_cols + [y_col]
         # examples = df_to_examples(df)
@@ -189,9 +190,7 @@ class Task:
         # create_feature_columns(X_cols, feature_spec)
 
         num_datapoints = 1000
-        test_examples = df_to_examples(
-            ds.df[features_and_labels][0:num_datapoints]
-        )
+        test_examples = df_to_examples(ds.df[features_and_labels][0:num_datapoints])
         config_builder = (
             WitConfigBuilder(
                 test_examples[:num_datapoints], feature_names=features_and_labels
@@ -203,7 +202,6 @@ class Task:
             )
             .set_target_feature(y_col)
         )
-
         display(WitWidget(config_builder))
 
     def plot_feature_correlations(self):

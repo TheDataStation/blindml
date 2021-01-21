@@ -6,6 +6,9 @@ import tensorflow as tf
 
 
 # Creates a tf feature spec from the dataframe and columns specified.
+from blindml.backend.search.preprocessing.transform import scale
+
+
 def create_feature_spec(df, columns):
     feature_spec = {}
     for f in columns:
@@ -126,4 +129,5 @@ def make_label_column_numeric(df, label_column, test):
 # takes a proto that's a list of protos
 def custom_predict(model, X_cols, examples_to_infer: List[tf.train.Example]):
     arr = examples_to_array(examples_to_infer, X_cols)
+    arr = scale(arr)
     return model.predict(arr)
