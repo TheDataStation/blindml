@@ -1,10 +1,10 @@
-pip-tools
+pip-tools>=5.5
 scikit-learn>=0.24.dev0
 torch
 torchvision
 keras
 tensorflow
-nni
+nni==1.9
 black
 pandas
 pytest
