@@ -21,57 +21,75 @@ astunparse==1.6.3
     # via tensorflow
 async-generator==1.10
     # via nbclient
-attrs==20.2.0
+attrs==20.3.0
     # via
     #   jsonschema
     #   pytest
+auto-sklearn==0.12.1
+    # via -r requirements.in
 backcall==0.2.0
     # via ipython
 black==20.8b1
     # via -r requirements.in
-bleach==3.2.1
+bleach==3.3.0
     # via nbconvert
-cachetools==4.1.1
+cachetools==4.2.1
     # via google-auth
-certifi==2020.6.20
-    # via
-    #   matplotlib
-    #   requests
-cffi==1.14.3
+certifi==2020.12.5
+    # via requests
+cffi==1.14.4
     # via argon2-cffi
-chardet==3.0.4
+chardet==4.0.0
     # via requests
 click==7.1.2
     # via
     #   black
+    #   distributed
     #   pip-tools
+cloudpickle==1.6.0
+    # via distributed
 colorama==0.4.4
     # via nni
+configspace==0.4.17
+    # via
+    #   auto-sklearn
+    #   smac
 contextlib2==0.6.0.post1
     # via schema
-coverage==5.3
+coverage==5.4
     # via nni
 cycler==0.10.0
     # via matplotlib
-data-science-types==0.2.20
+cython==0.29.21
+    # via configspace
+dask==2021.1.1
+    # via
+    #   auto-sklearn
+    #   distributed
+    #   smac
+data-science-types==0.2.22
     # via -r requirements.in
-dataclasses==0.6
-    # via torch
 decorator==4.4.2
     # via
     #   ipython
     #   networkx
 defusedxml==0.6.0
     # via nbconvert
+distributed==2021.1.1
+    # via
+    #   auto-sklearn
+    #   smac
+docutils==0.16
+    # via pynisher
 entrypoints==0.3
     # via nbconvert
+flatbuffers==1.12
+    # via tensorflow
 future==0.18.2
-    # via
-    #   hyperopt
-    #   torch
+    # via hyperopt
 gast==0.3.3
     # via tensorflow
-google-api-core==1.23.0
+google-api-core==1.25.1
     # via google-api-python-client
 google-api-python-client==1.12.8
     # via witwidget
@@ -79,7 +97,7 @@ google-auth-httplib2==0.0.4
     # via google-api-python-client
 google-auth-oauthlib==0.4.2
     # via tensorboard
-google-auth==1.23.0
+google-auth==1.25.0
     # via
     #   google-api-core
     #   google-api-python-client
@@ -90,7 +108,7 @@ google-pasta==0.2.0
     # via tensorflow
 googleapis-common-protos==1.52.0
     # via google-api-core
-grpcio==1.33.2
+grpcio==1.32.0
     # via
     #   tensorboard
     #   tensorflow
@@ -98,6 +116,8 @@ h5py==2.10.0
     # via
     #   keras
     #   tensorflow
+heapdict==1.0.1
+    # via zict
 httplib2==0.18.1
     # via
     #   google-api-python-client
@@ -107,7 +127,7 @@ hyperopt==0.1.2
     # via nni
 idna==2.10
     # via requests
-importlib-metadata==2.0.0
+importlib-metadata==3.4.0
     # via
     #   jsonschema
     #   markdown
@@ -115,7 +135,7 @@ importlib-metadata==2.0.0
     #   pytest
 iniconfig==1.1.1
     # via pytest
-ipykernel==5.3.4
+ipykernel==5.4.3
     # via
     #   ipywidgets
     #   jupyter
@@ -129,33 +149,35 @@ ipython-genutils==0.2.0
     #   notebook
     #   qtconsole
     #   traitlets
-ipython==7.19.0
+ipython==7.20.0
     # via
     #   ipykernel
     #   ipywidgets
     #   jupyter-console
     #   jupyter-latex-envs
-ipywidgets==7.5.1
+ipywidgets==7.6.3
     # via
     #   jupyter
     #   witwidget
-jedi==0.17.2
+jedi==0.18.0
     # via ipython
-jinja2==2.11.2
+jinja2==2.11.3
     # via
     #   nbconvert
     #   notebook
-joblib==0.17.0
+joblib==1.0.0
     # via
     #   -r requirements.in
+    #   auto-sklearn
     #   scikit-learn
-json-tricks==3.15.3
+    #   smac
+json-tricks==3.15.5
     # via nni
-jsonnet==0.16.0
+jsonnet==0.17.0
     # via -r requirements.in
 jsonschema==3.2.0
     # via nbformat
-jupyter-client==6.1.7
+jupyter-client==6.1.11
     # via
     #   ipykernel
     #   jupyter-console
@@ -170,7 +192,7 @@ jupyter-contrib-core==0.3.3
     #   jupyter-nbextensions-configurator
 jupyter-contrib-nbextensions==0.5.1
     # via -r requirements.in
-jupyter-core==4.6.3
+jupyter-core==4.7.1
     # via
     #   jupyter-client
     #   jupyter-contrib-core
@@ -193,29 +215,37 @@ jupyter==1.0.0
     #   witwidget
 jupyterlab-pygments==0.1.2
     # via nbconvert
+jupyterlab-widgets==1.0.0
+    # via ipywidgets
 keras-preprocessing==1.1.2
     # via tensorflow
 keras==2.4.3
     # via -r requirements.in
 kiwisolver==1.3.1
     # via matplotlib
+lazy-import==0.2.2
+    # via smac
+liac-arff==2.5.0
+    # via auto-sklearn
 lxml==4.6.2
     # via jupyter-contrib-nbextensions
 markdown==3.3.3
     # via tensorboard
 markupsafe==1.1.1
     # via jinja2
-matplotlib==3.3.2
+matplotlib==3.3.4
     # via
     #   -r requirements.in
     #   seaborn
 mistune==0.8.4
     # via nbconvert
+msgpack==1.0.2
+    # via distributed
 mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
-mypy==0.790
+mypy==0.800
     # via -r requirements.in
 nbclient==0.5.1
     # via nbconvert
@@ -225,13 +255,13 @@ nbconvert==6.0.7
     #   jupyter-contrib-nbextensions
     #   jupyter-latex-envs
     #   notebook
-nbformat==5.0.8
+nbformat==5.1.2
     # via
     #   ipywidgets
     #   nbclient
     #   nbconvert
     #   notebook
-nest-asyncio==1.4.3
+nest-asyncio==1.5.1
     # via nbclient
 netifaces==0.10.9
     # via nni
@@ -239,7 +269,7 @@ networkx==2.5
     # via hyperopt
 nni==1.9
     # via -r requirements.in
-notebook==6.1.5
+notebook==6.2.0
     # via
     #   jupyter
     #   jupyter-contrib-core
@@ -247,8 +277,10 @@ notebook==6.1.5
     #   jupyter-latex-envs
     #   jupyter-nbextensions-configurator
     #   widgetsnbextension
-numpy==1.18.5
+numpy==1.19.5
     # via
+    #   auto-sklearn
+    #   configspace
     #   h5py
     #   hyperopt
     #   keras
@@ -260,6 +292,7 @@ numpy==1.18.5
     #   scikit-learn
     #   scipy
     #   seaborn
+    #   smac
     #   tensorboard
     #   tensorflow
     #   torch
@@ -270,53 +303,58 @@ oauthlib==3.1.0
     # via requests-oauthlib
 opt-einsum==3.3.0
     # via tensorflow
-packaging==20.4
+packaging==20.9
     # via
     #   bleach
     #   pytest
-pandas==1.1.4
+pandas==1.2.1
     # via
     #   -r requirements.in
+    #   auto-sklearn
     #   seaborn
 pandocfilters==1.4.3
     # via nbconvert
-parso==0.7.1
+parso==0.8.1
     # via jedi
-pathspec==0.8.0
+pathspec==0.8.1
     # via black
 pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-pillow==8.0.1
+pillow==8.1.0
     # via
     #   matplotlib
     #   torchvision
 pip-tools==5.5.0
     # via -r requirements.in
-pkginfo==1.6.1
+pkginfo==1.7.0
     # via nni
 pluggy==0.13.1
     # via pytest
-prometheus-client==0.8.0
+prometheus-client==0.9.0
     # via notebook
-prompt-toolkit==3.0.8
+prompt-toolkit==3.0.14
     # via
     #   ipython
     #   jupyter-console
-protobuf==3.13.0
+protobuf==3.14.0
     # via
     #   google-api-core
     #   googleapis-common-protos
     #   tensorboard
     #   tensorflow
-psutil==5.7.3
-    # via nni
-ptyprocess==0.6.0
+psutil==5.8.0
+    # via
+    #   distributed
+    #   nni
+    #   pynisher
+    #   smac
+ptyprocess==0.7.0
     # via
     #   pexpect
     #   terminado
-py==1.9.0
+py==1.10.0
     # via pytest
 pyasn1-modules==0.2.8
     # via
@@ -329,22 +367,31 @@ pyasn1==0.4.8
     #   rsa
 pycparser==2.20
     # via cffi
-pygments==2.7.2
+pygments==2.7.4
     # via
     #   ipython
     #   jupyter-console
     #   jupyterlab-pygments
     #   nbconvert
     #   qtconsole
-pymongo==3.11.0
+pymongo==3.11.3
     # via hyperopt
+pynisher==0.6.3
+    # via
+    #   auto-sklearn
+    #   smac
 pyparsing==2.4.7
     # via
+    #   configspace
     #   matplotlib
     #   packaging
+pyrfr==0.8.0
+    # via
+    #   auto-sklearn
+    #   smac
 pyrsistent==0.17.3
     # via jsonschema
-pytest==6.1.2
+pytest==6.2.2
     # via -r requirements.in
 python-dateutil==2.8.1
     # via
@@ -353,29 +400,32 @@ python-dateutil==2.8.1
     #   pandas
 pythonwebhdfs==0.2.3
     # via nni
-pytz==2020.4
+pytz==2021.1
     # via
     #   google-api-core
     #   pandas
-pyyaml==5.3.1
+pyyaml==5.4.1
     # via
+    #   auto-sklearn
+    #   dask
+    #   distributed
     #   jupyter-contrib-nbextensions
     #   jupyter-nbextensions-configurator
     #   keras
-pyzmq==19.0.2
+pyzmq==22.0.2
     # via
     #   jupyter-client
     #   notebook
     #   qtconsole
-qtconsole==4.7.7
+qtconsole==5.0.2
     # via jupyter
 qtpy==1.9.0
     # via qtconsole
-regex==2020.10.28
+regex==2020.11.13
     # via black
 requests-oauthlib==1.3.0
     # via google-auth-oauthlib
-requests==2.24.0
+requests==2.25.1
     # via
     #   google-api-core
     #   nni
@@ -383,9 +433,9 @@ requests==2.24.0
     #   requests-oauthlib
     #   responses
     #   tensorboard
-responses==0.12.0
+responses==0.12.1
     # via nni
-rsa==4.6
+rsa==4.7
     # via
     #   google-auth
     #   oauth2client
@@ -393,20 +443,24 @@ ruamel.yaml.clib==0.2.2
     # via ruamel.yaml
 ruamel.yaml==0.16.12
     # via nni
-schema==0.7.2
+schema==0.7.4
     # via nni
-scikit-learn==0.24.dev0
+scikit-learn==0.24.1
     # via
     #   -r requirements.in
+    #   auto-sklearn
     #   nni
-scipy==1.5.3
+    #   smac
+scipy==1.6.0
     # via
+    #   auto-sklearn
     #   hyperopt
     #   keras
     #   nni
     #   scikit-learn
     #   seaborn
-seaborn==0.11.0
+    #   smac
+seaborn==0.11.1
     # via -r requirements.in
 send2trash==1.5.0
     # via notebook
@@ -429,27 +483,33 @@ six==1.15.0
     #   hyperopt
     #   jsonschema
     #   keras-preprocessing
+    #   lazy-import
     #   oauth2client
-    #   packaging
     #   protobuf
     #   python-dateutil
     #   responses
     #   tensorboard
     #   tensorflow
     #   witwidget
-tensorboard-plugin-wit==1.7.0
+smac==0.13.1
+    # via auto-sklearn
+sortedcontainers==2.3.0
+    # via distributed
+tblib==1.7.0
+    # via distributed
+tensorboard-plugin-wit==1.8.0
     # via tensorboard
-tensorboard==2.3.0
+tensorboard==2.4.1
     # via tensorflow
-tensorflow-estimator==2.3.0
+tensorflow-estimator==2.4.0
     # via tensorflow
-tensorflow==2.3.1
+tensorflow==2.4.1
     # via
     #   -r requirements.in
     #   witwidget
 termcolor==1.1.0
     # via tensorflow
-terminado==0.9.1
+terminado==0.9.2
     # via notebook
 testpath==0.4.4
     # via nbconvert
@@ -459,14 +519,17 @@ toml==0.10.2
     # via
     #   black
     #   pytest
-torch==1.7.0
+toolz==0.11.1
+    # via distributed
+torch==1.7.1
     # via
     #   -r requirements.in
     #   torchvision
-torchvision==0.8.1
+torchvision==0.8.2
     # via -r requirements.in
 tornado==6.1
     # via
+    #   distributed
     #   ipykernel
     #   jupyter-client
     #   jupyter-contrib-core
@@ -474,7 +537,7 @@ tornado==6.1
     #   jupyter-nbextensions-configurator
     #   notebook
     #   terminado
-tqdm==4.51.0
+tqdm==4.56.0
     # via hyperopt
 traitlets==5.0.5
     # via
@@ -492,18 +555,20 @@ traitlets==5.0.5
     #   nbformat
     #   notebook
     #   qtconsole
-typed-ast==1.4.1
+typed-ast==1.4.2
     # via
     #   black
     #   mypy
 typing-extensions==3.7.4.3
     # via
     #   black
+    #   importlib-metadata
     #   mypy
+    #   tensorflow
     #   torch
 uritemplate==3.0.1
     # via google-api-python-client
-urllib3==1.25.11
+urllib3==1.26.3
     # via
     #   requests
     #   responses
@@ -515,17 +580,19 @@ websockets==8.1
     # via nni
 werkzeug==1.0.1
     # via tensorboard
-wheel==0.35.1
+wheel==0.36.2
     # via
     #   astunparse
     #   tensorboard
     #   tensorflow
 widgetsnbextension==3.5.1
     # via ipywidgets
-witwidget==1.7.0
+witwidget==1.8.0
     # via -r requirements.in
 wrapt==1.12.1
     # via tensorflow
+zict==2.0.0
+    # via distributed
 zipp==3.4.0
     # via importlib-metadata
 
