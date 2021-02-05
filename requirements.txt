@@ -25,6 +25,8 @@ attrs==20.2.0
     # via
     #   jsonschema
     #   pytest
+auto-sklearn==0.12.3
+    # via -r requirements.in
 backcall==0.2.0
     # via ipython
 black==20.8b1
@@ -44,15 +46,29 @@ chardet==3.0.4
 click==7.1.2
     # via
     #   black
+    #   distributed
     #   pip-tools
+cloudpickle==1.6.0
+    # via distributed
 colorama==0.4.4
     # via nni
+configspace==0.4.18
+    # via
+    #   auto-sklearn
+    #   smac
 contextlib2==0.6.0.post1
     # via schema
 coverage==5.3
     # via nni
 cycler==0.10.0
     # via matplotlib
+cython==0.29.22
+    # via configspace
+dask==2021.2.0
+    # via
+    #   auto-sklearn
+    #   distributed
+    #   smac
 data-science-types==0.2.20
     # via -r requirements.in
 dataclasses==0.6
@@ -63,6 +79,10 @@ decorator==4.4.2
     #   networkx
 defusedxml==0.6.0
     # via nbconvert
+distributed==2021.2.0
+    # via
+    #   auto-sklearn
+    #   smac
 entrypoints==0.3
     # via nbconvert
 flake8==3.8.4
@@ -100,6 +120,8 @@ h5py==2.10.0
     # via
     #   keras
     #   tensorflow
+heapdict==1.0.1
+    # via zict
 httplib2==0.18.1
     # via
     #   google-api-python-client
@@ -151,7 +173,9 @@ jinja2==2.11.2
 joblib==0.17.0
     # via
     #   -r requirements.in
+    #   auto-sklearn
     #   scikit-learn
+    #   smac
 json-tricks==3.15.3
     # via nni
 jsonnet==0.16.0
@@ -202,6 +226,10 @@ keras==2.4.3
     # via -r requirements.in
 kiwisolver==1.3.1
     # via matplotlib
+lazy-import==0.2.2
+    # via smac
+liac-arff==2.5.0
+    # via auto-sklearn
 lxml==4.6.2
     # via jupyter-contrib-nbextensions
 markdown==3.3.3
@@ -216,6 +244,8 @@ mccabe==0.6.1
     # via flake8
 mistune==0.8.4
     # via nbconvert
+msgpack==1.0.2
+    # via distributed
 mypy-extensions==0.4.3
     # via
     #   black
@@ -254,6 +284,8 @@ notebook==6.1.5
     #   widgetsnbextension
 numpy==1.18.5
     # via
+    #   auto-sklearn
+    #   configspace
     #   h5py
     #   hyperopt
     #   keras
@@ -265,6 +297,7 @@ numpy==1.18.5
     #   scikit-learn
     #   scipy
     #   seaborn
+    #   smac
     #   tensorboard
     #   tensorflow
     #   torch
@@ -282,6 +315,7 @@ packaging==20.4
 pandas==1.1.4
     # via
     #   -r requirements.in
+    #   auto-sklearn
     #   seaborn
 pandocfilters==1.4.3
     # via nbconvert
@@ -316,7 +350,11 @@ protobuf==3.13.0
     #   tensorboard
     #   tensorflow
 psutil==5.7.3
-    # via nni
+    # via
+    #   distributed
+    #   nni
+    #   pynisher
+    #   smac
 ptyprocess==0.6.0
     # via
     #   pexpect
@@ -347,10 +385,19 @@ pygments==2.7.2
     #   qtconsole
 pymongo==3.11.0
     # via hyperopt
+pynisher==0.6.4
+    # via
+    #   auto-sklearn
+    #   smac
 pyparsing==2.4.7
     # via
+    #   configspace
     #   matplotlib
     #   packaging
+pyrfr==0.8.0
+    # via
+    #   auto-sklearn
+    #   smac
 pyrsistent==0.17.3
     # via jsonschema
 pytest==6.1.2
@@ -368,6 +415,9 @@ pytz==2020.4
     #   pandas
 pyyaml==5.3.1
     # via
+    #   auto-sklearn
+    #   dask
+    #   distributed
     #   jupyter-contrib-nbextensions
     #   jupyter-nbextensions-configurator
     #   keras
@@ -404,17 +454,21 @@ ruamel.yaml==0.16.12
     # via nni
 schema==0.7.2
     # via nni
-scikit-learn==0.24.dev0
+scikit-learn==0.24.1
     # via
     #   -r requirements.in
+    #   auto-sklearn
     #   nni
+    #   smac
 scipy==1.5.3
     # via
+    #   auto-sklearn
     #   hyperopt
     #   keras
     #   nni
     #   scikit-learn
     #   seaborn
+    #   smac
 seaborn==0.11.0
     # via -r requirements.in
 send2trash==1.5.0
@@ -438,6 +492,7 @@ six==1.15.0
     #   hyperopt
     #   jsonschema
     #   keras-preprocessing
+    #   lazy-import
     #   oauth2client
     #   packaging
     #   protobuf
@@ -446,6 +501,12 @@ six==1.15.0
     #   tensorboard
     #   tensorflow
     #   witwidget
+smac==0.13.1
+    # via auto-sklearn
+sortedcontainers==2.3.0
+    # via distributed
+tblib==1.7.0
+    # via distributed
 tensorboard-plugin-wit==1.7.0
     # via tensorboard
 tensorboard==2.3.0
@@ -468,6 +529,8 @@ toml==0.10.2
     # via
     #   black
     #   pytest
+toolz==0.11.1
+    # via distributed
 torch==1.7.0
     # via
     #   -r requirements.in
@@ -476,6 +539,7 @@ torchvision==0.8.1
     # via -r requirements.in
 tornado==6.1
     # via
+    #   distributed
     #   ipykernel
     #   jupyter-client
     #   jupyter-contrib-core
@@ -535,6 +599,8 @@ witwidget==1.7.0
     # via -r requirements.in
 wrapt==1.12.1
     # via tensorflow
+zict==2.0.0
+    # via distributed
 zipp==3.4.0
     # via importlib-metadata
 
