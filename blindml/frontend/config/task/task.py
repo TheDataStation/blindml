@@ -29,6 +29,7 @@ from blindml.frontend.reporting.metrics import plot_trial_record
 from blindml.frontend.reporting.wit import df_to_examples, custom_predict
 from blindml.util import dict_hash
 
+import autosklearn.regression
 
 class Task:
     _task_fp: str
@@ -57,6 +58,7 @@ class Task:
         # TODO: probably need better naming
         self._task = self._task_capsule.task
         self.task_type = self._task.type
+        self.task_search_time = self._task.search_time
         self.user = self._task_capsule.user
         self._data_path = self._task.payload.data_path
         self._experiment_name = f"{self.user}s_experiment"
@@ -75,6 +77,8 @@ class Task:
                     - set(self._task.payload.drop_cols)
                     - {self._task.payload.y_col}
                 )
+                # ^ should this drop the y_col even when there isn't a drop_cols
+                # configuration?
             else:
                 X_cols = self._task.X_cols
 
@@ -101,38 +105,35 @@ class Task:
         )
 
     def search_for_model(self):
-        # this will resume? if experiment already exists?
-        run_nni(self._nni_experiment_config)
+        # this only does regressions. choice of model is defined in
+        # the task defininition, though
+        # TODO: pick model type from there from there
 
-    def get_model_search_update(self):
-        sorted_good_trials = get_experiment_update(self._nni_experiment_config)
-        # re-sort by time
-        metric_values = [s["finalMetricData"] for s in sorted_good_trials]
-        if len(metric_values) == 0:
-            print("no successfully trained models yet")
-        return metric_values[::-1]
+        regressor = autosklearn.regression.AutoSklearnRegressor(time_left_for_this_task = self.task_search_time)
 
-    def get_best_model(self):
-        sorted_good_trials = get_experiment_update(self._nni_experiment_config)
-        hyper_parameters = sorted_good_trials[0]["hyperParameters"]
-        model = get_model(hyper_parameters)
-        return model
-
-    def train_best_model(self):
-        model = self.get_best_model()
-
-        # # TODO: this should be part of model search
-        # X_scaled = scale(X)
-
+        print("getting training data")
         X_train, y_train = self._data_set.get_train_data()
-        feat_idxs = select_features(X_train, y_train)
-        X_selected_train = X_train[:, feat_idxs]
 
-        return train(X_selected_train, y_train, model)
+        print("starting regressions")
 
-    def get_explanations(self, model=None):
-        if model is None:
-            model = self.train_best_model()
+        # TODO: should give this both training and test data?
+        # which Task has already split up
+        # or give it all data and let regressor split it all
+        # up itself?
+
+        regressor.fit(X_train, y_train)
+        print("done with regression")
+
+        print("regressor is built")
+
+        print("Ensemble constructed by auto-sklearn regressor:")
+        print(regressor.show_models())
+
+        self._auto_sk_model = regressor
+        # this will resume? if experiment already exists?
+        # run_nni(self._nni_experiment_config)
+
+    def get_explanations(self, model):
 
         print("trial record")
         self.plot_trial_record()
@@ -144,9 +145,7 @@ class Task:
         print("partial dependences and individual conditional expectation")
         self.plot_partial_dependence(model)
 
-    def get_wit(self, model=None):
-        if model is None:
-            model = self.train_best_model()
+    def get_wit(self, model):
 
         df = self._data_set.df
         X_cols, y_col = self._data_set.X_cols, self._data_set.y_col

@@ -3,6 +3,7 @@
   access_token: '1234567',
   task: {
     type: 'regression',
+    search_time: 60,
     payload: {
       y_col: 'energy_above_hull (meV/atom)',
       drop_cols: [
