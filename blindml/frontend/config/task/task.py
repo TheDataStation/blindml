@@ -29,6 +29,7 @@ from blindml.frontend.reporting.metrics import plot_trial_record
 from blindml.frontend.reporting.wit import df_to_examples, custom_predict
 from blindml.util import dict_hash
 
+import autosklearn.regression
 
 class Task:
     _task_fp: str
@@ -75,6 +76,8 @@ class Task:
                     - set(self._task.payload.drop_cols)
                     - {self._task.payload.y_col}
                 )
+                # ^ should this drop the y_col even when there isn't a drop_cols
+                # configuration?
             else:
                 X_cols = self._task.X_cols
 
@@ -101,10 +104,36 @@ class Task:
         )
 
     def search_for_model(self):
+        # this only does regressions. choice of model is defined in
+        # the task defininition, though
+        # TODO: pick model type from there from there
+        regressor = autosklearn.regression.AutoSklearnRegressor(
+            time_left_for_this_task = 120
+            
+            )
+
+        print("getting training data")
+        X_train, y_train = self._data_set.get_train_data()
+
+        print("starting regressions")
+      
+        # TODO: should give this both training and test data?
+        # which Task has already split up
+        # or give it all data and let regressor split it all
+        # up itself?
+        regressor.fit(X_train, y_train)
+        print("done with regression")
+
+        # is this cls the "model" under a different name?
+
+        print("regressor is built")
+
+        self._auto_sk_model = regressor
         # this will resume? if experiment already exists?
-        run_nni(self._nni_experiment_config)
+        # run_nni(self._nni_experiment_config)
 
     def get_model_search_update(self):
+        raise RuntimeError("BENC: removed nni - don't call this")
         sorted_good_trials = get_experiment_update(self._nni_experiment_config)
         # re-sort by time
         metric_values = [s["finalMetricData"] for s in sorted_good_trials]
@@ -113,10 +142,14 @@ class Task:
         return metric_values[::-1]
 
     def get_best_model(self):
-        sorted_good_trials = get_experiment_update(self._nni_experiment_config)
-        hyper_parameters = sorted_good_trials[0]["hyperParameters"]
-        model = get_model(hyper_parameters)
-        return model
+        # this is NNI stuff:
+        # sorted_good_trials = get_experiment_update(self._nni_experiment_config)
+        # hyper_parameters = sorted_good_trials[0]["hyperParameters"]
+        # model = get_model(hyper_parameters)
+
+        # auto-sklearn will set a model when it runs, not asynchronously
+        # - this should be set in search_for_model
+        return self._auto_sk_model
 
     def train_best_model(self):
         model = self.get_best_model()
