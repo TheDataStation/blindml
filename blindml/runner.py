@@ -28,7 +28,9 @@ def run_wit(task_file_fp):
     #     print("no model trained yet")
     #     time.sleep(5)
 
-    model = task.train_best_model()
+    # model = task.train_best_model()
+
+    model = task._auto_sk_model
     task.get_wit(model)
 
 

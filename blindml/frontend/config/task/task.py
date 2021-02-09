@@ -107,8 +107,9 @@ class Task:
         # this only does regressions. choice of model is defined in
         # the task defininition, though
         # TODO: pick model type from there from there
+
         regressor = autosklearn.regression.AutoSklearnRegressor(
-            time_left_for_this_task = 120
+            time_left_for_this_task = 300
             
             )
 
@@ -127,6 +128,11 @@ class Task:
         # is this cls the "model" under a different name?
 
         print("regressor is built")
+
+        print("Ensemble constructed by auto-sklearn regressor:")
+        print(regressor.show_models())
+
+
 
         self._auto_sk_model = regressor
         # this will resume? if experiment already exists?
@@ -156,6 +162,11 @@ class Task:
 
         # # TODO: this should be part of model search
         # X_scaled = scale(X)
+
+        # what does select_features mean here?
+        # its selecting some features from the training data and then
+        # training based on that... why?
+        # This uses NNI so would need to be swapped out...
 
         X_train, y_train = self._data_set.get_train_data()
         feat_idxs = select_features(X_train, y_train)
