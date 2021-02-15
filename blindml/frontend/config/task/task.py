@@ -1,5 +1,7 @@
 import csv
 import json
+import os
+import time
 from pprint import pformat
 from types import SimpleNamespace
 from typing import Any, Union
@@ -62,9 +64,20 @@ class Task:
         self._experiment_name = f"{self.user}s_experiment"
         self._experiment_name_with_hash = f"{self._experiment_name}_{self._task_hash}"
         if self._data_path.endswith(".csv"):
+            print("Loading CSV")
+            (a,b) = os.path.split(self._data_path)
+
+            extra_path = a + "/" "extra_" + b
+            
+            if(os.path.exists(extra_path)):
+                print("Searching for related data")
+                time.sleep(10)
+                print("Found related data")
+                self._data_path = extra_path
             all_columns = next(
                 csv.reader(open(self._data_path, "r", encoding="utf-8-sig"))
             )
+            time.sleep(10)
             # XOR
             assert hasattr(self._task.payload, "X_cols") != hasattr(
                 self._task.payload, "drop_cols"

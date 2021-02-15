@@ -3,7 +3,8 @@ import numpy as np
 
 def select_features(X_train, y_train):
     try:
-        fgs = FeatureGradientSelector(n_epochs=10, device="cuda")
+        # BENC: can this device be autoselected?
+        fgs = FeatureGradientSelector(n_epochs=10, device="cpu")
         fgs.fit(X_train, y_train)
         feat_idxs = fgs.get_selected_features()
     except AssertionError as a:

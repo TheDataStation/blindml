@@ -8,6 +8,7 @@ import time
 from functools import cmp_to_key
 from pprint import pprint
 from subprocess import check_call, CalledProcessError, Popen, PIPE, STDOUT, call
+from sys import exit
 
 import psutil
 from nni.package_utils import get_builtin_module_class_name, get_nni_installation_path
@@ -288,7 +289,7 @@ def make_nni_experiment_config(experiment_name, search_space, hours=1, max_trial
         "trainingServicePlatform": "local",
         "trial": {
             "codeDir": f"{here}/../../../blindml/",
-            "command": "source venv/bin/activate && python3 -m blindml.backend.run",
+            "command": "python3 -m blindml.backend.run",
             # "gpuNum": 0,
         },
         "trialConcurrency": 1,
