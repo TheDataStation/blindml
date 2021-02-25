@@ -18,3 +18,4 @@ data-science-types
 witwidget
 jupyter_contrib_nbextensions
 flake8
+pytest
