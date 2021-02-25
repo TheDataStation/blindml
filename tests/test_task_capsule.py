@@ -5,10 +5,10 @@ from blindml.frontend.config.task.task import parse_task_capsule
 
 class MyTestCase(unittest.TestCase):
     def test_task_capsule_parsing(self):
-        task = parse_task_capsule("perovskite_task.jsonnet")
+        task = parse_task_capsule("tests/perovskite_task.jsonnet")
 
     def test_model_search(self):
-        task = parse_task_capsule("perovskite_task.jsonnet")
+        task = parse_task_capsule("tests/perovskite_task.jsonnet")
         task.search_for_model()
 
 

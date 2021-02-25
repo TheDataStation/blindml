@@ -37,3 +37,12 @@ jupyter nbextension enable --py --sys-prefix witwidget
 # TODO
 
 spinners for long running "explanation" functions.
+
+
+# Testing
+
+To run pytest tests:
+
+```
+PYTHONPATH=$(pwd) pytest
+```
