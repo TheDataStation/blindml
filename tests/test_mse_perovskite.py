@@ -19,7 +19,6 @@ def test_perovskite_quick():
 
     mse = mean_squared_error(y_train, y_pred)
 
-
     """
     On @benclifford laptop, running for these times gives MSEs around these numbers:
 
