@@ -29,7 +29,8 @@ from blindml.frontend.reporting.metrics import plot_trial_record
 from blindml.frontend.reporting.wit import df_to_examples, custom_predict
 from blindml.util import dict_hash
 
-import autosklearn.regression
+from autosklearn.classification import AutoSklearnClassifier
+from autosklearn.regression import AutoSklearnRegressor
 
 class Task:
     _task_fp: str
@@ -105,11 +106,15 @@ class Task:
         )
 
     def search_for_model(self):
-        # this only does regressions. choice of model is defined in
-        # the task defininition, though
-        # TODO: pick model type from there from there
+        if self.task_type == "regression":
+            self.search_for_model_regression()
+        elif self.task_type == "classification":
+            self.search_for_model_classification()
+        else:
+            raise ValueError(f"Unknown task type {self.task_type}")
 
-        regressor = autosklearn.regression.AutoSklearnRegressor(time_left_for_this_task = self.task_search_time)
+    def search_for_model_regression(self):
+        regressor = AutoSklearnRegressor(time_left_for_this_task = self.task_search_time)
 
         print("getting training data")
         X_train, y_train = self._data_set.get_train_data()
@@ -132,6 +137,24 @@ class Task:
         self._auto_sk_model = regressor
         # this will resume? if experiment already exists?
         # run_nni(self._nni_experiment_config)
+
+    def search_for_model_classification(self):
+        classifier = AutoSklearnClassifier(time_left_for_this_task = self.task_search_time)
+
+        print("getting training data")
+        X_train, y_train = self._data_set.get_train_data()
+
+        print("starting classification")
+
+        classifier.fit(X_train, y_train)
+        print("done with classification")
+
+        print("classifier is built")
+
+        print("Ensemble constructed by auto-sklearn classifier:")
+        print(classifier.show_models())
+
+        self._auto_sk_model = classifier
 
     def get_explanations(self, model):
 
