@@ -5,7 +5,7 @@ from blindml.frontend.config.task.task import parse_task_capsule
 
 def run(task_file_fp):
     task = parse_task_capsule(task_file_fp)
-    model = task_auto_sk_model
+    model = task._auto_sk_model
 
     task.get_explanations(model)
 
