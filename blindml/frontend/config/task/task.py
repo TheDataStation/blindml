@@ -121,11 +121,6 @@ class Task:
 
         print("starting regressions")
 
-        # TODO: should give this both training and test data?
-        # which Task has already split up
-        # or give it all data and let regressor split it all
-        # up itself?
-
         regressor.fit(X_train, y_train)
         print("done with regression")
 
