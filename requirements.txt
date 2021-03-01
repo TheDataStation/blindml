@@ -15,8 +15,6 @@ appdirs==1.4.4
     # via black
 argon2-cffi==20.1.0
     # via notebook
-astor==0.8.1
-    # via nni
 astunparse==1.6.3
     # via tensorflow
 async-generator==1.10
@@ -50,16 +48,10 @@ click==7.1.2
     #   pip-tools
 cloudpickle==1.6.0
     # via distributed
-colorama==0.4.4
-    # via nni
 configspace==0.4.18
     # via
     #   auto-sklearn
     #   smac
-contextlib2==0.6.0.post1
-    # via schema
-coverage==5.3
-    # via nni
 cycler==0.10.0
     # via matplotlib
 cython==0.29.22
@@ -74,9 +66,7 @@ data-science-types==0.2.20
 dataclasses==0.6
     # via torch
 decorator==4.4.2
-    # via
-    #   ipython
-    #   networkx
+    # via ipython
 defusedxml==0.6.0
     # via nbconvert
 distributed==2021.2.0
@@ -88,9 +78,7 @@ entrypoints==0.3
 flake8==3.8.4
     # via -r requirements.in
 future==0.18.2
-    # via
-    #   hyperopt
-    #   torch
+    # via torch
 gast==0.3.3
     # via tensorflow
 google-api-core==1.23.0
@@ -127,8 +115,6 @@ httplib2==0.18.1
     #   google-api-python-client
     #   google-auth-httplib2
     #   oauth2client
-hyperopt==0.1.2
-    # via nni
 idna==2.10
     # via requests
 importlib-metadata==2.0.0
@@ -176,8 +162,6 @@ joblib==0.17.0
     #   auto-sklearn
     #   scikit-learn
     #   smac
-json-tricks==3.15.3
-    # via nni
 jsonnet==0.16.0
     # via -r requirements.in
 jsonschema==3.2.0
@@ -268,12 +252,6 @@ nbformat==5.0.8
     #   notebook
 nest-asyncio==1.4.3
     # via nbclient
-netifaces==0.10.9
-    # via nni
-networkx==2.5
-    # via hyperopt
-nni==1.9
-    # via -r requirements.in
 notebook==6.1.5
     # via
     #   jupyter
@@ -287,11 +265,9 @@ numpy==1.18.5
     #   auto-sklearn
     #   configspace
     #   h5py
-    #   hyperopt
     #   keras
     #   keras-preprocessing
     #   matplotlib
-    #   nni
     #   opt-einsum
     #   pandas
     #   scikit-learn
@@ -333,8 +309,6 @@ pillow==8.0.1
     #   torchvision
 pip-tools==5.5.0
     # via -r requirements.in
-pkginfo==1.6.1
-    # via nni
 pluggy==0.13.1
     # via pytest
 prometheus-client==0.8.0
@@ -352,7 +326,6 @@ protobuf==3.13.0
 psutil==5.7.3
     # via
     #   distributed
-    #   nni
     #   pynisher
     #   smac
 ptyprocess==0.6.0
@@ -383,8 +356,6 @@ pygments==2.7.2
     #   jupyterlab-pygments
     #   nbconvert
     #   qtconsole
-pymongo==3.11.0
-    # via hyperopt
 pynisher==0.6.4
     # via
     #   auto-sklearn
@@ -407,8 +378,6 @@ python-dateutil==2.8.1
     #   jupyter-client
     #   matplotlib
     #   pandas
-pythonwebhdfs==0.2.3
-    # via nni
 pytz==2020.4
     # via
     #   google-api-core
@@ -437,35 +406,21 @@ requests-oauthlib==1.3.0
 requests==2.24.0
     # via
     #   google-api-core
-    #   nni
-    #   pythonwebhdfs
     #   requests-oauthlib
-    #   responses
     #   tensorboard
-responses==0.12.0
-    # via nni
 rsa==4.6
     # via
     #   google-auth
     #   oauth2client
-ruamel.yaml.clib==0.2.2
-    # via ruamel.yaml
-ruamel.yaml==0.16.12
-    # via nni
-schema==0.7.2
-    # via nni
 scikit-learn==0.24.1
     # via
     #   -r requirements.in
     #   auto-sklearn
-    #   nni
     #   smac
 scipy==1.5.3
     # via
     #   auto-sklearn
-    #   hyperopt
     #   keras
-    #   nni
     #   scikit-learn
     #   seaborn
     #   smac
@@ -473,8 +428,6 @@ seaborn==0.11.0
     # via -r requirements.in
 send2trash==1.5.0
     # via notebook
-simplejson==3.17.2
-    # via pythonwebhdfs
 six==1.15.0
     # via
     #   absl-py
@@ -489,7 +442,6 @@ six==1.15.0
     #   google-pasta
     #   grpcio
     #   h5py
-    #   hyperopt
     #   jsonschema
     #   keras-preprocessing
     #   lazy-import
@@ -497,7 +449,6 @@ six==1.15.0
     #   packaging
     #   protobuf
     #   python-dateutil
-    #   responses
     #   tensorboard
     #   tensorflow
     #   witwidget
@@ -547,8 +498,6 @@ tornado==6.1
     #   jupyter-nbextensions-configurator
     #   notebook
     #   terminado
-tqdm==4.51.0
-    # via hyperopt
 traitlets==5.0.5
     # via
     #   ipykernel
@@ -577,15 +526,11 @@ typing-extensions==3.7.4.3
 uritemplate==3.0.1
     # via google-api-python-client
 urllib3==1.25.11
-    # via
-    #   requests
-    #   responses
+    # via requests
 wcwidth==0.2.5
     # via prompt-toolkit
 webencodings==0.5.1
     # via bleach
-websockets==8.1
-    # via nni
 werkzeug==1.0.1
     # via tensorboard
 wheel==0.35.1

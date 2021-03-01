@@ -11,13 +11,6 @@ from joblib import load, dump
 from witwidget import WitConfigBuilder, WitWidget
 
 from blindml.backend.buid_model_search_space import build_model_search_space
-from blindml.backend.nni_helper import (
-    run_nni,
-    get_experiment_update,
-    make_nni_experiment_config,
-)
-from blindml.backend.run import get_model
-from blindml.backend.search.preprocessing.selection import select_features
 from blindml.backend.training.train import train
 from blindml.data.dataset import TabularDataset
 from blindml.frontend.reporting.explanations import (
@@ -38,7 +31,6 @@ class Task:
     _task_hash: str
     _task: SimpleNamespace
     _json_str: str
-    _nni_experiment_config: dict
     _experiment_name: str
     _experiment_name_with_hash: str
     task_type: str
@@ -96,14 +88,6 @@ class Task:
             )
         else:
             raise Exception("unsupported dataset")
-
-        # TODO: this is a dirty hack in order to have a fixed experiment name in both blindml and nni
-        # vim venv/nni/main.js
-        # // const expId = createNew ? utils_1.uniqueString(8) : resumeExperimentId;
-        # const expId = resumeExperimentId;
-        self._nni_experiment_config = make_nni_experiment_config(
-            self._experiment_name_with_hash, search_space
-        )
 
     def search_for_model(self):
         if self.task_type == "regression":

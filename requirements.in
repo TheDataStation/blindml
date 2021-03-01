@@ -4,7 +4,6 @@ torch
 torchvision
 keras
 tensorflow
-nni==1.9
 auto-sklearn
 black
 pandas
