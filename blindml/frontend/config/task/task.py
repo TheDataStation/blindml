@@ -130,8 +130,6 @@ class Task:
         print(regressor.show_models())
 
         self._auto_sk_model = regressor
-        # this will resume? if experiment already exists?
-        # run_nni(self._nni_experiment_config)
 
     def search_for_model_classification(self):
         classifier = AutoSklearnClassifier(time_left_for_this_task = self.task_search_time)
