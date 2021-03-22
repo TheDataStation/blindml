@@ -1,4 +1,5 @@
-pip-tools>=5.5
+# seems to cause some conflicts (or at least deep resolution searchs for many hours) when building alongside aurum-datadiscovery. perhaps when i've weakened stuff down I can reenable
+# pip-tools>=5.5
 scikit-learn>=0.24.dev0
 torch
 torchvision
