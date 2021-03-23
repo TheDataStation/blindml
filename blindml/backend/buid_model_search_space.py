@@ -1,7 +1,13 @@
 import json
 import os
 
-HERE = os.path.split(__file__)[0]
+# reading this from the same directory as the .py file is
+# probably not the right thing to do when installing as a package.
+# HERE = os.path.split(__file__)[0]
+# so for now, look in the current directory we are running from,
+# which means you can only run from the blindml source directory.
+# which is ick.
+HERE = "."
 
 
 def build_model_search_space(task_type: str, data_path: str, **kwargs):
@@ -22,8 +28,8 @@ def build_model_search_space(task_type: str, data_path: str, **kwargs):
         else:
             raise Exception("need to specify either X_cols or drop_cols")
 
-    hps = json.load(open(f"{HERE}/search/model_search/hp.json"))
-    models = json.load(open(f"{HERE}/search/model_search/model_select.json"))
+    hps = json.load(open(f"{HERE}/hp.json"))
+    models = json.load(open(f"{HERE}/model_select.json"))
 
     classifier_choices_with_hps = []
     for classifier in models["classification"]:
