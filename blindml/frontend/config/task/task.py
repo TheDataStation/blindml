@@ -39,6 +39,7 @@ class Task:
     _data_set: Union[TabularDataset, Any]
 
     def __init__(self, task_fp) -> None:
+        print("BENC: task capsule init")
         self._task_fp = task_fp
         self._json_str = jsonnet.evaluate_file(task_fp)
         self._task_hash = dict_hash(
@@ -56,7 +57,8 @@ class Task:
         self._data_path = self._task.payload.data_path
         self._experiment_name = f"{self.user}s_experiment"
         self._experiment_name_with_hash = f"{self._experiment_name}_{self._task_hash}"
-        if self._data_path.endswith(".csv"):
+        ## assume always csv
+        if True or self._data_path.endswith(".csv"):
             all_columns = next(
                 csv.reader(open(self._data_path, "r", encoding="utf-8-sig"))
             )
@@ -128,8 +130,9 @@ class Task:
 
         print("classifier is built")
 
-        print("Ensemble constructed by auto-sklearn classifier:")
-        print(classifier.show_models())
+        # print("Ensemble constructed by auto-sklearn classifier:")
+        # print(classifier.show_models())
+        # DummyClassifier cannot be printed so this line blows up auto-sklearn...
 
         self._auto_sk_model = classifier
 
@@ -213,4 +216,8 @@ class Task:
 
 
 def parse_task_capsule(task_fp):
-    return Task(task_fp)
+    print("BENC: in parse_task_capsule")
+    try:
+        return Task(task_fp)
+    finally:
+        print("BENC: done with parse_task_capsule (finally block)")

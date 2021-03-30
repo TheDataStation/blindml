@@ -24,19 +24,33 @@ class TabularDataset:
     _dropna: bool = True
 
     def __init__(self, csv_fp, y_col, X_cols, dropna=True) -> None:
+        print("BENC TabularData load")
         self._csv_fp = csv_fp
         self._df = pd.read_csv(csv_fp)
         self._dropna = dropna
-
         self._y_col = y_col
         self._X_cols = X_cols
 
+        # force these to categorical for dod integ prototype
+        for column in self._df.columns:
+            print(f"BENC: setting column {column} to category")
+            self._df[column] = self._df[column].astype('category')
+
+        print(f"Dataframe is {self._df}")
+        print(f"Dataframe types are {self._df.dtypes}")
+
     def get_data(self, dropna=False):
+        print("BENC: task.get_data")
         if self._X is None or self._y is None:
+            print("BENC: path 1")
             df = self._df[self._X_cols + [self._y_col]]
+            print(f"BENC: type of df is {type(df)}")
             if dropna:
+                print("BENC: path 1.1")
                 df = df.dropna(axis="index")
             self._X, self._y = split_df_X_y(self._y_col, df)
+        else:
+            print("BENC: path 2")
         return self._X, self._y
 
     def get_train_data(self):
@@ -45,6 +59,7 @@ class TabularDataset:
             self._X_train, self._X_test, self._y_train, self._y_test = get_splits(
                 X, y, test_size=self._test_size
             )
+        print(f"BENC: get_train_data, types are: xtrain: {self._X_train.dtypes}, ytrain: {self._y_train.dtypes}")
         return self._X_train, self._y_train
 
     def get_test_data(self):
@@ -75,7 +90,11 @@ class TabularDataset:
 
 
 def split_df_X_y(y_col, df: pd.DataFrame):
-    X, y = df[list(set(df.columns.values) - {y_col})].values, df[y_col].values
+    # X, y = df[list(set(df.columns.values) - {y_col})].values, df[y_col].values
+    # potentially useful to avoid discarding df types that i've hacked in earlier?
+    X, y = df[list(set(df.columns.values) - {y_col})], df[y_col]
+    print(f"BENC split_df_X_y, type of X {type(X)}")
+    print(f"BENC split_df_X_y, type of df {type(df)}")
     return X, y
 
 
@@ -90,4 +109,5 @@ def get_splits(X, y, test_size=0.20):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=42
     )
+    print(f"BENC: get split, type of X {type(X)}, type of X_train {type(X)}")
     return X_train, X_test, y_train, y_test
