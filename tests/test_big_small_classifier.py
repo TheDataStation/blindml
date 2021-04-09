@@ -52,7 +52,6 @@ def test_big_small_classifier_explicit_X_cols():
     print(f"test finished with accuracy {accuracy}")
 
 
-
 if __name__ == "__main__":
     test_big_small_classifier_quick()
     print("test successful")
