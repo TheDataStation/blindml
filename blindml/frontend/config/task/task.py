@@ -57,7 +57,7 @@ class Task:
         self._data_path = self._task.payload.data_path
         self._experiment_name = f"{self.user}s_experiment"
         self._experiment_name_with_hash = f"{self._experiment_name}_{self._task_hash}"
-        ## assume always csv
+        # assume always csv
         if True or self._data_path.endswith(".csv"):
             all_columns = next(
                 csv.reader(open(self._data_path, "r", encoding="utf-8-sig"))
