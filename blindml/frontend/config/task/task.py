@@ -70,10 +70,9 @@ class Task:
                     - set(self._task.payload.drop_cols)
                     - {self._task.payload.y_col}
                 )
-                # ^ should this drop the y_col even when there isn't a drop_cols
-                # configuration?
             else:
                 X_cols = self._task.payload.X_cols
+                assert self._task.payload.y_col not in X_cols
 
             self._data_set = TabularDataset(
                 csv_fp=self._data_path, y_col=self._task.payload.y_col, X_cols=X_cols
