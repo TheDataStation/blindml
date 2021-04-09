@@ -5,12 +5,8 @@ from blindml.frontend.config.task.task import parse_task_capsule
 
 def run(task_file_fp):
     task = parse_task_capsule(task_file_fp)
-    task.search_for_model()
-    while not task.get_model_search_update():
-        print("no model trained yet")
-        time.sleep(5)
+    model = task._auto_sk_model
 
-    model = task.train_best_model()
     task.get_explanations(model)
 
 
@@ -18,11 +14,7 @@ def run_wit(task_file_fp):
     task = parse_task_capsule(task_file_fp)
     print(task)
     task.search_for_model()
-    while not task.get_model_search_update():
-        print("no model trained yet")
-        time.sleep(5)
-
-    model = task.train_best_model()
+    model = task._auto_sk_model
     task.get_wit(model)
 
 

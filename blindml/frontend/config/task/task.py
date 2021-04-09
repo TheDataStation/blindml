@@ -11,13 +11,6 @@ from joblib import load, dump
 from witwidget import WitConfigBuilder, WitWidget
 
 from blindml.backend.buid_model_search_space import build_model_search_space
-from blindml.backend.nni_helper import (
-    run_nni,
-    get_experiment_update,
-    make_nni_experiment_config,
-)
-from blindml.backend.run import get_model
-from blindml.backend.search.preprocessing.selection import select_features
 from blindml.backend.training.train import train
 from blindml.data.dataset import TabularDataset
 from blindml.frontend.reporting.explanations import (
@@ -29,6 +22,8 @@ from blindml.frontend.reporting.metrics import plot_trial_record
 from blindml.frontend.reporting.wit import df_to_examples, custom_predict
 from blindml.util import dict_hash
 
+from autosklearn.classification import AutoSklearnClassifier
+from autosklearn.regression import AutoSklearnRegressor
 
 class Task:
     _task_fp: str
@@ -36,7 +31,6 @@ class Task:
     _task_hash: str
     _task: SimpleNamespace
     _json_str: str
-    _nni_experiment_config: dict
     _experiment_name: str
     _experiment_name_with_hash: str
     task_type: str
@@ -57,6 +51,7 @@ class Task:
         # TODO: probably need better naming
         self._task = self._task_capsule.task
         self.task_type = self._task.type
+        self.task_search_time = self._task.search_time
         self.user = self._task_capsule.user
         self._data_path = self._task.payload.data_path
         self._experiment_name = f"{self.user}s_experiment"
@@ -76,7 +71,8 @@ class Task:
                     - {self._task.payload.y_col}
                 )
             else:
-                X_cols = self._task.X_cols
+                X_cols = self._task.payload.X_cols
+                assert self._task.payload.y_col not in X_cols
 
             self._data_set = TabularDataset(
                 csv_fp=self._data_path, y_col=self._task.payload.y_col, X_cols=X_cols
@@ -92,47 +88,51 @@ class Task:
         else:
             raise Exception("unsupported dataset")
 
-        # TODO: this is a dirty hack in order to have a fixed experiment name in both blindml and nni
-        # vim venv/nni/main.js
-        # // const expId = createNew ? utils_1.uniqueString(8) : resumeExperimentId;
-        # const expId = resumeExperimentId;
-        self._nni_experiment_config = make_nni_experiment_config(
-            self._experiment_name_with_hash, search_space
-        )
-
     def search_for_model(self):
-        # this will resume? if experiment already exists?
-        run_nni(self._nni_experiment_config)
+        if self.task_type == "regression":
+            self.search_for_model_regression()
+        elif self.task_type == "classification":
+            self.search_for_model_classification()
+        else:
+            raise ValueError(f"Unknown task type {self.task_type}")
 
-    def get_model_search_update(self):
-        sorted_good_trials = get_experiment_update(self._nni_experiment_config)
-        # re-sort by time
-        metric_values = [s["finalMetricData"] for s in sorted_good_trials]
-        if len(metric_values) == 0:
-            print("no successfully trained models yet")
-        return metric_values[::-1]
+    def search_for_model_regression(self):
+        regressor = AutoSklearnRegressor(time_left_for_this_task = self.task_search_time)
 
-    def get_best_model(self):
-        sorted_good_trials = get_experiment_update(self._nni_experiment_config)
-        hyper_parameters = sorted_good_trials[0]["hyperParameters"]
-        model = get_model(hyper_parameters)
-        return model
-
-    def train_best_model(self):
-        model = self.get_best_model()
-
-        # # TODO: this should be part of model search
-        # X_scaled = scale(X)
-
+        print("getting training data")
         X_train, y_train = self._data_set.get_train_data()
-        feat_idxs = select_features(X_train, y_train)
-        X_selected_train = X_train[:, feat_idxs]
 
-        return train(X_selected_train, y_train, model)
+        print("starting regressions")
 
-    def get_explanations(self, model=None):
-        if model is None:
-            model = self.train_best_model()
+        regressor.fit(X_train, y_train)
+        print("done with regression")
+
+        print("regressor is built")
+
+        print("Ensemble constructed by auto-sklearn regressor:")
+        print(regressor.show_models())
+
+        self._auto_sk_model = regressor
+
+    def search_for_model_classification(self):
+        classifier = AutoSklearnClassifier(time_left_for_this_task = self.task_search_time)
+
+        print("getting training data")
+        X_train, y_train = self._data_set.get_train_data()
+
+        print("starting classification")
+
+        classifier.fit(X_train, y_train)
+        print("done with classification")
+
+        print("classifier is built")
+
+        print("Ensemble constructed by auto-sklearn classifier:")
+        print(classifier.show_models())
+
+        self._auto_sk_model = classifier
+
+    def get_explanations(self, model):
 
         print("trial record")
         self.plot_trial_record()
@@ -144,9 +144,7 @@ class Task:
         print("partial dependences and individual conditional expectation")
         self.plot_partial_dependence(model)
 
-    def get_wit(self, model=None):
-        if model is None:
-            model = self.train_best_model()
+    def get_wit(self, model):
 
         df = self._data_set.df
         X_cols, y_col = self._data_set.X_cols, self._data_set.y_col

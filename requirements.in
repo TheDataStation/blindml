@@ -1,10 +1,10 @@
-pip-tools
+pip-tools>=5.5
 scikit-learn>=0.24.dev0
 torch
 torchvision
 keras
 tensorflow
-nni
+auto-sklearn
 black
 pandas
 pytest
@@ -17,3 +17,5 @@ mypy
 data-science-types
 witwidget
 jupyter_contrib_nbextensions
+flake8
+pytest

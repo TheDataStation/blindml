@@ -3,6 +3,7 @@
   access_token: '1234567',
   task: {
     type: 'regression',
+    search_time: 60,
     payload: {
       y_col: 'energy_above_hull (meV/atom)',
       drop_cols: [
@@ -16,7 +17,7 @@
         'B site #3',
         'X site',
       ],
-      data_path: "/Users/maksim/dev_projects/blindml/data/Perovskite_Stability_with_features.csv"
+      data_path: "./data/Perovskite_Stability_with_features.csv"
     },
   },
   dos: {
