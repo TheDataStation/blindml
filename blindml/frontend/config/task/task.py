@@ -112,8 +112,8 @@ class Task:
 
         print("regressor is built")
 
-        print("Ensemble constructed by auto-sklearn regressor:")
-        print(regressor.show_models())
+        # print("Ensemble constructed by auto-sklearn regressor:")
+        # print(regressor.show_models())
 
         self._auto_sk_model = regressor
 
