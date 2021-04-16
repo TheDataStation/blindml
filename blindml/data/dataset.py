@@ -43,7 +43,6 @@ class TabularDataset:
             if dropna:
                 df = df.dropna(axis="index")
             self._X, self._y = split_df_X_y(self._y_col, df)
-        else:
         return self._X, self._y
 
     def get_train_data(self):
