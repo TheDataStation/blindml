@@ -39,7 +39,6 @@ class Task:
     _data_set: Union[TabularDataset, Any]
 
     def __init__(self, task_fp) -> None:
-        print("BENC: task capsule init")
         self._task_fp = task_fp
         self._json_str = jsonnet.evaluate_file(task_fp)
         self._task_hash = dict_hash(
@@ -216,8 +215,4 @@ class Task:
 
 
 def parse_task_capsule(task_fp):
-    print("BENC: in parse_task_capsule")
-    try:
-        return Task(task_fp)
-    finally:
-        print("BENC: done with parse_task_capsule (finally block)")
+    return Task(task_fp)
